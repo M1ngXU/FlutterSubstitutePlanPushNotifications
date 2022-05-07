@@ -36,7 +36,7 @@ enum SubstituteState {
 
 @JsonSerializable(explicitToJson: true)
 class Substitute {
-  final String id;
+  final int id;
   late final DateTime date;
   final String description;
   final List<String> teachers;
@@ -62,7 +62,7 @@ class Substitute {
     this.date = DateTime(date.year, date.month, date.day);
   }
 
-  factory Substitute.createDummy({id = 'id', date = 0, description = 'description', teachers, subject = 'subject', rooms, kind = 'kind', day = 1, hours, state = SubstituteState.added}) {
+  factory Substitute.createDummy({int id = 0, date = 0, description = 'description', teachers, subject = 'subject', rooms, kind = 'kind', day = 1, hours, state = SubstituteState.added}) {
     var t = TreeSet<Time>();
     t.add(Time(0, '4'));
     t.add(Time(-1, '1'));
@@ -79,7 +79,7 @@ class Substitute {
               .where((d) => d.isAfter(DateTime.now()))
               .map((d) =>
                 Substitute(
-                    castOr(json['id'], ''),
+                    castOr(json['id'], 0),
                     d,
                     json['description'],
                     _tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),

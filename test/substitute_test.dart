@@ -39,7 +39,7 @@ void main() {
 
   group('from sdui json', () {
     test('single event, unknown time_id => ALL DAY', () => expect(Substitute.fromSduiJson(<String, dynamic> {
-      'id': 'a',
+      'id': 1,
       'dates': [12345678999],
       'description': 'b',
       'grades': [<String, dynamic>{'shortcut':'g'}],
@@ -49,13 +49,13 @@ void main() {
       'kind': 'EVENT',
       'day': 6,
       'time_id': 't1'
-    }, HashMap(), 'g'), equals([Substitute.createDummy(id: 'a', date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e', 'd'], kind: 'EVENT', day: 6, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)])));
+    }, HashMap(), 'g'), equals([Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e', 'd'], kind: 'EVENT', day: 6, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)])));
 
     test('`substituted_target_lessons` only, with some in the past, also different times, no time_id', () =>
         expect(
             Substitute.fromSduiJson(<String, dynamic> {
               'substituted_target_lessons': [<String, dynamic>{
-                'id': 'a',
+                'id': 1,
                 'dates': [12345678999, 1234],
                 'description': 'b',
                 'grades': [<String, dynamic>{'shortcut':'g'}],
@@ -68,7 +68,7 @@ void main() {
                 'day': 6,
                 'time_id': 't1'
               }, <String, dynamic>{
-                'id': 'b',
+                'id': 2,
                 'dates': [0, 99999999999],
                 'description': 'b',
                 'grades': [<String, dynamic>{'shortcut':'g'}, <String, dynamic>{'shortcut':'c'}],
@@ -86,8 +86,8 @@ void main() {
               't2': Time(3, '2')
             }), 'g'),
             equals([
-              Substitute.createDummy(id: 'a', date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e'], kind: 'ADDITIONAL', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
-              Substitute.createDummy(id: 'b', date: 99999999999000, description: 'b', teachers: ['c', 'e'], subject: 'd', rooms: ['e'], kind: 'SUBSTITUTION', day: 1, hours: singleTreeSet(Time(3, '2')), state: null)
+              Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e'], kind: 'ADDITIONAL', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
+              Substitute.createDummy(id: 2, date: 99999999999000, description: 'b', teachers: ['c', 'e'], subject: 'd', rooms: ['e'], kind: 'SUBSTITUTION', day: 1, hours: singleTreeSet(Time(3, '2')), state: null)
             ])
         )
     );
@@ -96,7 +96,7 @@ void main() {
         expect(
             Substitute.fromSduiJson(<String, dynamic> {
               'substituted_target_lessons': [<String, dynamic>{
-                'id': 'a',
+                'id': 1,
                 'dates': [12345678999],
                 'description': 'b',
                 'grades': [<String, dynamic>{'shortcut':'c'}, <String, dynamic>{'shortcut':'b'}],
@@ -109,7 +109,7 @@ void main() {
                 'day': 6,
                 'time_id': 't1'
               }, <String, dynamic>{
-                'id': 'b',
+                'id': 2,
                 'dates': [99999999999],
                 'description': 'b',
                 'grades': [<String, dynamic>{'shortcut':'d'}],
@@ -137,7 +137,7 @@ void main() {
               'teachers': [<String, dynamic>{'shortcut': 'cd'}, <String, dynamic>{'shortcut': 'ef'}],
               'bookables': [<String, dynamic>{'shortcut': 'e'}, <String, dynamic>{'shortcut': 'f'}],
               'substituted_target_lessons': [<String, dynamic>{
-                'id': 'a',
+                'id': 1,
                 'dates': [99999999999],
                 'description': 'b',
                 'teachers': null,
@@ -149,7 +149,7 @@ void main() {
                 'day': 6,
                 'time_id': 't1'
               }, <String, dynamic>{
-                'id': 'b',
+                'id': 2,
                 'grades': [<String, dynamic>{'shortcut':'g'}],
                 'dates': [0, 99999999999],
                 'description': 'b',
@@ -161,7 +161,7 @@ void main() {
                 'day': 1,
                 'time_id': 't1'
               }, <String, dynamic>{
-                'id': 'c',
+                'id': 3,
                 'dates': [0, 99999999999],
                 'description': 'b',
                 'grades': [<String, dynamic>{'shortcut':'g'}],
@@ -176,9 +176,9 @@ void main() {
               't1': Time(1, '1'),
             }), 'g'),
             equals([
-              Substitute.createDummy(id: 'a', date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: ['e', 'f'], kind: 'CANCLED', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
-              Substitute.createDummy(id: 'b', date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: List<String>.empty(), kind: 'BOOKABLE_CHANGE', day: 1, hours: singleTreeSet(Time(1, '1')), state: null),
-              Substitute.createDummy(id: 'c', date: 99999999999000, description: 'b', teachers: List<String>.empty(), subject: 'd', rooms: List<String>.empty(), kind: 'EVENT', day: 1, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)
+              Substitute.createDummy(id: 1, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: ['e', 'f'], kind: 'CANCLED', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
+              Substitute.createDummy(id: 2, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: List<String>.empty(), kind: 'BOOKABLE_CHANGE', day: 1, hours: singleTreeSet(Time(1, '1')), state: null),
+              Substitute.createDummy(id: 3, date: 99999999999000, description: 'b', teachers: List<String>.empty(), subject: 'd', rooms: List<String>.empty(), kind: 'EVENT', day: 1, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)
             ])
         )
     );
@@ -211,7 +211,7 @@ void main() {
       test('rest invalid', () =>
           expect(
               () => Substitute.fromSduiJson(<String, dynamic>{
-                'id': 643,
+                'id': '643',
                 'dates': [12345678999],
                 'description': 'b',
                 'grades': [<String, dynamic>{'shortcut': 'g'}],

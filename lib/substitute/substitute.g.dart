@@ -7,7 +7,7 @@ part of 'substitute.dart';
 // **************************************************************************
 
 Substitute _$SubstituteFromJson(Map<String, dynamic> json) => Substitute(
-      json['id'] as String,
+      json['id'] as int,
       DateTime.parse(json['date'] as String),
       json['description'] as String,
       (json['teachers'] as List<dynamic>).map((e) => e as String).toList(),

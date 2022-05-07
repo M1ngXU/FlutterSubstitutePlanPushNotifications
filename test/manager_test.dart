@@ -41,14 +41,14 @@ void main() {
     test('`complex`, multiple substitutes', () {
       // using microseconds to get date in future
       var o = [
-        Substitute.createDummy(id: 'a', subject: 'b', date: DateTime.now().microsecondsSinceEpoch),
-        Substitute.createDummy(id: 'b', rooms: ['a'], date: DateTime.now().microsecondsSinceEpoch),
-        Substitute.createDummy(id: 'c', teachers: ['d'], date: DateTime.now().microsecondsSinceEpoch),
+        Substitute.createDummy(id: 1, subject: 'b', date: DateTime.now().microsecondsSinceEpoch),
+        Substitute.createDummy(id: 2, rooms: ['a'], date: DateTime.now().microsecondsSinceEpoch),
+        Substitute.createDummy(id: 3, teachers: ['d'], date: DateTime.now().microsecondsSinceEpoch),
       ];
       var s = [
-        Substitute.createDummy(id: 'b', rooms: ['a'], date: DateTime.now().microsecondsSinceEpoch),
-        Substitute.createDummy(id: 'c', teachers: ['f'], date: DateTime.now().microsecondsSinceEpoch),
-        Substitute.createDummy(id: 'd', teachers: ['d'], date: DateTime.now().microsecondsSinceEpoch),
+        Substitute.createDummy(id: 2, rooms: ['a'], date: DateTime.now().microsecondsSinceEpoch),
+        Substitute.createDummy(id: 3, teachers: ['f'], date: DateTime.now().microsecondsSinceEpoch),
+        Substitute.createDummy(id: 4, teachers: ['d'], date: DateTime.now().microsecondsSinceEpoch),
       ];
       updateSubstituteList(o, s);
       expect(s.length, 4);
