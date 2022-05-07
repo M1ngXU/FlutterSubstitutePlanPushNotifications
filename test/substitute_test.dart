@@ -183,7 +183,7 @@ void main() {
         )
     );
 
-    group('random data, no exception', () {
+    group('bad data, no exception', () {
       test('invalid kind', () =>
           expect(() =>
               Substitute.fromSduiJson(

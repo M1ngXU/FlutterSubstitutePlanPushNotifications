@@ -15,20 +15,17 @@ const _event = 'EVENT';
 const _substitution = 'SUBSTITUTION';
 const _separator = '+';
 
-JSONArray _hoursToJson(TreeSet<Time> hours) => hours.toList(growable: false).map((t) => t.toJson()).toList(growable: false);
-TreeSet<Time> _hoursFromJson(JSONArray hours) {
+JsonArray _hoursToJson(TreeSet<Time> hours) => hours.toList(growable: false).map((t) => t.toJson()).toList(growable: false);
+TreeSet<Time> _hoursFromJson(JsonArray hours) {
   TreeSet<Time> t = TreeSet<Time>();
   t.addAll(hours.map(Time.fromJson));
   return t;
 }
-List<String> _tryRetrieveShortcuts(JSONObject? json, String key, JSONObject? parent, bool checkParent) {
-  var l = _castOr<JSONArray>(json?[key], []).map((e) => e['shortcut'] as String).toList();
+List<String> _tryRetrieveShortcuts(JsonObject? json, String key, JsonObject? parent, bool checkParent) {
+  var l = castOr<JsonArray>(json?[key], []).map((e) => e['shortcut'] as String).toList();
   if (l.isEmpty && checkParent && parent != null) l = _tryRetrieveShortcuts(parent, key, null, false);
   return l;
 }
-/// casts `t` to `T` if it is possible, otherwise returns `def`
-T _castOr<T>(Object? t, T def) => t is T ? t : def;
-JSONObject? _getKey(JSONObject? json, String key) => _castOr(json?[key], null);
 
 enum SubstituteState {
   removed,
@@ -72,38 +69,38 @@ class Substitute {
     return Substitute(id, DateTime.fromMillisecondsSinceEpoch(date), description, teachers ?? ['teacher'], subject, rooms ?? ['room'], kind, day, hours ?? t, state);
   }
 
-  static List<Substitute> fromSduiJson(JSONObject json, HashMap<String, Time> times, String grade, {JSONObject? parent}) {
+  static List<Substitute> fromSduiJson(JsonObject json, HashMap<String, Time> times, String grade, {JsonObject? parent}) {
     List<Substitute> s = [];
-    String? kind = _castOr(json['kind'], null);
-    if (kind != null && kind.isNotEmpty && _castOr<JSONArray>(json['grades'], []).any((g) => g['shortcut'] == grade)) {
+    String? kind = castOr(json['kind'], null);
+    if (kind != null && kind.isNotEmpty && castOr<JsonArray>(json['grades'], []).any((g) => g['shortcut'] == grade)) {
       s.addAll(
-          _castOr<List<int>>(json['dates'], [])
+          castOr<List<int>>(json['dates'], [])
               .map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000))
               .where((d) => d.isAfter(DateTime.now()))
               .map((d) =>
                 Substitute(
-                    _castOr(json['id'], ''),
+                    castOr(json['id'], ''),
                     d,
                     json['description'],
                     _tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),
-                    _getKey(_getKey(json, 'course'), 'meta')?['shortname'] ?? '',
+                    getKey(getKey(json, 'course'), 'meta')?['shortname'] ?? '',
                     _tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
                     kind,
-                    _castOr(json['day'], 0),
+                    castOr(json['day'], 0),
                     singleTreeSet(times[json['time_id']] ?? Time(0, 'ALL DAY')),
                     null
                 )
               )
       );
     }
-    s.addAll((json['substituted_target_lessons'] as JSONArray? ?? [])
+    s.addAll((json['substituted_target_lessons'] as JsonArray? ?? [])
         .expand((lesson) => fromSduiJson(lesson, times, grade, parent: json)));
     return s;
   }
 
-  factory Substitute.fromJson(JSONObject json) => _$SubstituteFromJson(json);
+  factory Substitute.fromJson(JsonObject json) => _$SubstituteFromJson(json);
 
-  JSONObject toJson() => _$SubstituteToJson(this);
+  JsonObject toJson() => _$SubstituteToJson(this);
 
   /// JSON representation for the [`Substitute`].
   @override

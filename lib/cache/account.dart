@@ -16,9 +16,9 @@ class Account {
 
   factory Account.fromLoginData(LoginData loginData) => Account(loginData: loginData);
 
-  factory Account.fromJson(JSONObject json) => _$AccountFromJson(json);
+  factory Account.fromJson(JsonObject json) => _$AccountFromJson(json);
 
-  JSONObject toJson() => _$AccountToJson(this);
+  JsonObject toJson() => _$AccountToJson(this);
 
   /// JSON representation for the [`Account`].
   @override

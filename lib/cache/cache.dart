@@ -13,9 +13,9 @@ class Cache {
 
   Cache(this.accounts);
 
-  factory Cache.fromJson(JSONObject json) => _$CacheFromJson(json);
+  factory Cache.fromJson(JsonObject json) => _$CacheFromJson(json);
 
-  JSONObject toJson() => _$CacheToJson(this);
+  JsonObject toJson() => _$CacheToJson(this);
 
   /// JSON representation for the [`Cache`].
   @override

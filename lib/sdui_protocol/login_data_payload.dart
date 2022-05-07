@@ -20,9 +20,9 @@ class LoginDataPayload {
   LoginDataPayload(this.username, this.password, this.school);
   factory LoginDataPayload.fromLoginData(LoginData ld) => LoginDataPayload(ld.username, ld.password, ld.school);
 
-  factory LoginDataPayload.fromJson(JSONObject json) => _$LoginDataPayloadFromJson(json);
+  factory LoginDataPayload.fromJson(JsonObject json) => _$LoginDataPayloadFromJson(json);
 
-  JSONObject toJson() => _$LoginDataPayloadToJson(this);
+  JsonObject toJson() => _$LoginDataPayloadToJson(this);
 
   /// JSON representation for the [`LoginDataPayload`].
   @override

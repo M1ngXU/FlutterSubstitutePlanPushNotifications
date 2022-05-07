@@ -22,9 +22,9 @@ class _SduiResponse {
 
   _SduiResponse(this.data, this.status, this.meta);
 
-  factory _SduiResponse.fromJson(JSONObject json) => _$SduiResponseFromJson(json);
+  factory _SduiResponse.fromJson(JsonObject json) => _$SduiResponseFromJson(json);
 
-  JSONObject toJson() => _$SduiResponseToJson(this);
+  JsonObject toJson() => _$SduiResponseToJson(this);
 
   print() {
     if (status != 'SUCCESS') log('Status not `SUCCESS`, but `' + status + '`');
@@ -40,9 +40,9 @@ class _Meta {
 
   _Meta(this.warnings, this.errors, this.success);
 
-  factory _Meta.fromJson(JSONObject json) => _$MetaFromJson(json);
+  factory _Meta.fromJson(JsonObject json) => _$MetaFromJson(json);
 
-  JSONObject toJson() => _$MetaToJson(this);
+  JsonObject toJson() => _$MetaToJson(this);
 
   print() {
     success.forEach(log);

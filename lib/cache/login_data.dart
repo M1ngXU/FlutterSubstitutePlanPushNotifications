@@ -16,9 +16,9 @@ class LoginData {
 
   LoginData({required this.username, required this.password, required this.school, this.token});
 
-  factory LoginData.fromJson(JSONObject json) => _$LoginDataFromJson(json);
+  factory LoginData.fromJson(JsonObject json) => _$LoginDataFromJson(json);
 
-  JSONObject toJson() => _$LoginDataToJson(this);
+  JsonObject toJson() => _$LoginDataToJson(this);
 
   /// JSON representation for the [`LoginData`].
   @override
