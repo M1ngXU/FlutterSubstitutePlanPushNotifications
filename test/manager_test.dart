@@ -30,6 +30,15 @@ void main() {
       expect(s[0].state, SubstituteState.modified);
     });
 
+    test('expired element', () {
+      var o = [Substitute.createDummy(date: 0)];
+      List<Substitute> s = [];
+      updateSubstituteList(o, s);
+      expect(s.length, 1);
+      expect(s[0].state, SubstituteState.expired);
+      expect(s[0], o[0]);
+    });
+
     test('same element, noChange', () {
       var o = [Substitute.createDummy()];
       List<Substitute> s = [Substitute.createDummy()];

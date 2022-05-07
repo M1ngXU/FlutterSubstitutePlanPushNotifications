@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:better_sdui_push_notification/substitute/time.dart';
 import 'package:better_sdui_push_notification/util.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:quiver/collection.dart';
 
@@ -26,12 +28,14 @@ List<String> _tryRetrieveShortcuts(JsonObject? json, String key, JsonObject? par
   if (l.isEmpty && checkParent && parent != null) l = _tryRetrieveShortcuts(parent, key, null, false);
   return l;
 }
+String _spaceParenthesisIfNotEmpty(String s) => s.isNotEmpty ? ' ($s)' : '';
 
 enum SubstituteState {
   removed,
   added,
   modified,
-  noChange
+  noChange,
+  expired
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -43,7 +47,6 @@ class Substitute {
   final String subject;
   final List<String> rooms;
   final String kind;
-  final int day;
   @JsonKey(fromJson: _hoursFromJson, toJson: _hoursToJson)
   late TreeSet<Time> hours = TreeSet<Time>();
   SubstituteState? state;
@@ -56,23 +59,23 @@ class Substitute {
       this.subject,
       this.rooms,
       this.kind,
-      this.day,
       this.hours,
       this.state) {
     this.date = DateTime(date.year, date.month, date.day);
   }
 
-  factory Substitute.createDummy({int id = 0, date = 0, description = 'description', teachers, subject = 'subject', rooms, kind = 'kind', day = 1, hours, state = SubstituteState.added}) {
+  factory Substitute.createDummy({int id = 0, date = 0, description = 'description', teachers, subject = 'subject', rooms, kind = 'kind', hours, state = SubstituteState.added}) {
     var t = TreeSet<Time>();
-    t.add(Time(0, '4'));
-    t.add(Time(-1, '1'));
-    return Substitute(id, DateTime.fromMillisecondsSinceEpoch(date), description, teachers ?? ['teacher'], subject, rooms ?? ['room'], kind, day, hours ?? t, state);
+    t.add(Time(0, '4', DateTime(0, 0, 0, 12, 15), DateTime(0, 0, 0, 13, 0)));
+    t.add(Time(-1, '1', DateTime(0, 0, 0, 5, 1), DateTime(0, 0, 0, 6, 2)));
+    return Substitute(id, DateTime.fromMillisecondsSinceEpoch(date), description, teachers ?? ['teacher'], subject, rooms ?? ['room'], kind, hours ?? t, state);
   }
 
-  static List<Substitute> fromSduiJson(JsonObject json, HashMap<int, Time> times, String grade, {JsonObject? parent}) {
+  static List<Substitute> fromSduiJson(JsonObject json, Times times, String grade, {JsonObject? parent}) {
     List<Substitute> s = [];
     String? kind = castOr(json['kind'], null);
-    if (kind != null && kind.isNotEmpty && castToJsonArray(json['grades']).any((g) => g['shortcut'] == grade)) {
+    /// holidays are for all grades and these take up lots of space
+    if (kind != null && kind.isNotEmpty && !castToJsonArray(json['grades']).any((g) => g['shortcut'] != grade)) {
       s.addAll(
           castListOr<int>(json['dates'], [])
               .map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000))
@@ -86,7 +89,6 @@ class Substitute {
                     getKey(getKey(json, 'course'), 'meta')?['shortname'] ?? '',
                     _tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
                     kind,
-                    castOr(json['day'], 0),
                     singleTreeSet(times[json['time_id']] ?? Time(0, 'ALL DAY')),
                     null
                 )
@@ -116,12 +118,11 @@ class Substitute {
       && subject == other.subject
       && deepEqualSet(rooms.toSet(), other.rooms.toSet())
       && kind == other.kind
-      && day == other.day
       && deepEqualSet(hours, other.hours)
       && state == other.state;
 
   @override
-  int get hashCode => Object.hash(id, date, description, teachers, subject, rooms, kind, day, hours, state);
+  int get hashCode => Object.hash(id, date, description, teachers, subject, rooms, kind, hours, state);
 
   String formatByKind() {
     switch (kind) {
@@ -133,16 +134,43 @@ class Substitute {
         return '${'substitution'} => $_teachers|$_rooms';
       case _event:
       case _additional:
-        return '$kind ($description)';
+        return '$kind${_spaceParenthesisIfNotEmpty(description)}';
       default:
         return '$kind ($subject: $_teachers|$_rooms)';
+    }
+  }
+
+  IconData getIcon() {
+    switch (kind) {
+      case _cancelled:
+        return Icons.clear;
+      case _bookableChange:
+        return Icons.login;
+      case _substitution:
+        return Icons.update;
+      case _event:
+      case _additional:
+        return Icons.add;
+      default:
+        return Icons.question_mark;
     }
   }
 
   String get _rooms => rooms.join(_separator);
   String get _teachers => teachers.join(_separator);
 
-  String toReadableString() => '${'Lesson'} ${hours.map((e) => e.name).join(_separator)} ($subject): ${formatByKind()}';
+  String toReadableString() => '${'Lesson'} ${hours.map((e) => e.name).join(_separator)}${_spaceParenthesisIfNotEmpty(subject)}: ${formatByKind()}';
+
+  String getTimeRangeString(DateFormat timeFormatter) {
+    if (hours.isEmpty) return '';
+    StringBuffer result = StringBuffer();
+    result.write(timeFormatter.format(hours.first.from));
+    if (hours.length > 1) result.write(' (${hours.first.name})');
+    result.writeln();
+    result.write(timeFormatter.format(hours.last.to));
+    if (hours.length > 1) result.write(' (${hours.last.name})');
+    return result.toString();
+  }
 
   bool subjectHourEquality(Object other) => other is Substitute && subjectHourComparison(other) == 0;
 

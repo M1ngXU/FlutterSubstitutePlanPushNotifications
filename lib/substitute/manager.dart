@@ -4,7 +4,8 @@ import 'package:better_sdui_push_notification/substitute/substitute.dart';
 import 'package:quiver/collection.dart';
 
 /// sets all the states
-void updateSubstituteList(List<Substitute> old, List<Substitute> cur) {
+/// returns a reference to the current substitute list for better chaining
+List<Substitute> updateSubstituteList(List<Substitute> old, List<Substitute> cur) {
   for (var substitute in cur) {
     try {
       substitute.state = old.firstWhere((other) => substitute.id == other.id) == substitute ? SubstituteState.noChange : SubstituteState.modified;
@@ -16,10 +17,11 @@ void updateSubstituteList(List<Substitute> old, List<Substitute> cur) {
     try {
       cur.firstWhere((other) => substitute.id == other.id);
     } catch(_) {
-      substitute.state = SubstituteState.removed;
+      substitute.state = substitute.date.isBefore(DateTime.now()) ? SubstituteState.expired : SubstituteState.removed;
       cur.add(substitute);
     }
   }
+  return cur;
 }
 
 typedef SortedSubstitutes = SplayTreeMap<DateTime, TreeSet<Substitute>>; 

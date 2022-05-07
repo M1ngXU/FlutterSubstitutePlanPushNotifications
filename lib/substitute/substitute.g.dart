@@ -14,7 +14,6 @@ Substitute _$SubstituteFromJson(Map<String, dynamic> json) => Substitute(
       json['subject'] as String,
       (json['rooms'] as List<dynamic>).map((e) => e as String).toList(),
       json['kind'] as String,
-      json['day'] as int,
       _hoursFromJson(json['hours'] as List<Map<String, dynamic>>),
       $enumDecodeNullable(_$SubstituteStateEnumMap, json['state']),
     );
@@ -28,7 +27,6 @@ Map<String, dynamic> _$SubstituteToJson(Substitute instance) =>
       'subject': instance.subject,
       'rooms': instance.rooms,
       'kind': instance.kind,
-      'day': instance.day,
       'hours': _hoursToJson(instance.hours),
       'state': _$SubstituteStateEnumMap[instance.state],
     };
@@ -38,4 +36,5 @@ const _$SubstituteStateEnumMap = {
   SubstituteState.added: 'added',
   SubstituteState.modified: 'modified',
   SubstituteState.noChange: 'noChange',
+  SubstituteState.expired: 'expired',
 };

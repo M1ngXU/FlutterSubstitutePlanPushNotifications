@@ -1,7 +1,11 @@
+import 'dart:collection';
+
+import 'package:better_sdui_push_notification/substitute/time.dart';
 import 'package:quiver/collection.dart';
 
 typedef JsonObject = Map<String, dynamic>;
 typedef JsonArray = List<JsonObject>;
+typedef Times = HashMap<int, Time>;
 
 TreeSet<T> singleTreeSet<T>(T item) => doubleTreeSet(item, item);
 TreeSet<T> doubleTreeSet<T>(T item1, T item2) {

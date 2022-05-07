@@ -26,8 +26,8 @@ void main() {
   group('subject hour equality/comparison', () {
     test('only subject/date same', () =>
       expect(
-          Substitute.createDummy(subject: 'AB', description: 'AB', teachers: ['EF'], rooms: ['FD'], kind: 'C3', day: 0, date: 0, state: SubstituteState.removed)
-              .subjectHourEquality(Substitute.createDummy(subject: 'AB', description: 'CD', teachers: ['CD'], rooms: ['FQ'], kind: 'AJ', day: 1, hours: TreeSet<Time>(), date: 0, state: SubstituteState.added)
+          Substitute.createDummy(subject: 'AB', description: 'AB', teachers: ['EF'], rooms: ['FD'], kind: 'C3', date: 0, state: SubstituteState.removed)
+              .subjectHourEquality(Substitute.createDummy(subject: 'AB', description: 'CD', teachers: ['CD'], rooms: ['FQ'], kind: 'AJ', hours: TreeSet<Time>(), date: 0, state: SubstituteState.added)
           ),
           isTrue
       )
@@ -47,9 +47,8 @@ void main() {
       'course': <String, dynamic> {'meta': <String, dynamic> {'shortname': 'd'}},
       'bookables': [<String, dynamic> {'shortcut': 'e'}, <String, dynamic> {'shortcut': 'd'}],
       'kind': 'EVENT',
-      'day': 6,
       'time_id': 1
-    }, HashMap(), 'g'), equals([Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e', 'd'], kind: 'EVENT', day: 6, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)])));
+    }, HashMap(), 'g'), equals([Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e', 'd'], kind: 'EVENT', hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)])));
 
     test('`substituted_target_lessons` only, with some in the past, also different times, no time_id', () =>
         expect(
@@ -65,20 +64,18 @@ void main() {
                 },
                 'bookables': [<String, dynamic>{'shortcut': 'e'}],
                 'kind': 'ADDITIONAL',
-                'day': 6,
                 'time_id': 1
               }, <String, dynamic>{
                 'id': 2,
                 'dates': [0, 99999999999],
                 'description': 'b',
-                'grades': [<String, dynamic>{'shortcut':'g'}, <String, dynamic>{'shortcut':'c'}],
+                'grades': [<String, dynamic>{'shortcut':'g'}],
                 'teachers': [<String, dynamic>{'shortcut': 'c'}, <String, dynamic>{'shortcut': 'e'}],
                 'course': <String, dynamic>{
                   'meta': <String, dynamic>{'shortname': 'd'}
                 },
                 'bookables': [<String, dynamic>{'shortcut': 'e'}],
                 'kind': 'SUBSTITUTION',
-                'day': 1,
                 'time_id': 2
               }]
             }, HashMap.from(<int, Time> {
@@ -86,8 +83,8 @@ void main() {
               2: Time(3, '2')
             }), 'g'),
             equals([
-              Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e'], kind: 'ADDITIONAL', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
-              Substitute.createDummy(id: 2, date: 99999999999000, description: 'b', teachers: ['c', 'e'], subject: 'd', rooms: ['e'], kind: 'SUBSTITUTION', day: 1, hours: singleTreeSet(Time(3, '2')), state: null)
+              Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e'], kind: 'ADDITIONAL', hours: singleTreeSet(Time(1, '1')), state: null),
+              Substitute.createDummy(id: 2, date: 99999999999000, description: 'b', teachers: ['c', 'e'], subject: 'd', rooms: ['e'], kind: 'SUBSTITUTION', hours: singleTreeSet(Time(3, '2')), state: null)
             ])
         )
     );
@@ -176,9 +173,9 @@ void main() {
               1: Time(1, '1'),
             }), 'g'),
             equals([
-              Substitute.createDummy(id: 1, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: ['e', 'f'], kind: 'CANCLED', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
-              Substitute.createDummy(id: 2, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: List<String>.empty(), kind: 'BOOKABLE_CHANGE', day: 1, hours: singleTreeSet(Time(1, '1')), state: null),
-              Substitute.createDummy(id: 3, date: 99999999999000, description: 'b', teachers: List<String>.empty(), subject: 'd', rooms: List<String>.empty(), kind: 'EVENT', day: 1, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)
+              Substitute.createDummy(id: 1, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: ['e', 'f'], kind: 'CANCLED', hours: singleTreeSet(Time(1, '1')), state: null),
+              Substitute.createDummy(id: 2, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: List<String>.empty(), kind: 'BOOKABLE_CHANGE', hours: singleTreeSet(Time(1, '1')), state: null),
+              Substitute.createDummy(id: 3, date: 99999999999000, description: 'b', teachers: List<String>.empty(), subject: 'd', rooms: List<String>.empty(), kind: 'EVENT', hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)
             ])
         )
     );
