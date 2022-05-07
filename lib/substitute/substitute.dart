@@ -22,7 +22,7 @@ TreeSet<Time> _hoursFromJson(JsonArray hours) {
   return t;
 }
 List<String> _tryRetrieveShortcuts(JsonObject? json, String key, JsonObject? parent, bool checkParent) {
-  var l = castOr<JsonArray>(json?[key], []).map((e) => e['shortcut'] as String).toList();
+  var l = castToJsonArray(json?[key]).map((e) => e['shortcut'] as String).toList();
   if (l.isEmpty && checkParent && parent != null) l = _tryRetrieveShortcuts(parent, key, null, false);
   return l;
 }
@@ -69,19 +69,19 @@ class Substitute {
     return Substitute(id, DateTime.fromMillisecondsSinceEpoch(date), description, teachers ?? ['teacher'], subject, rooms ?? ['room'], kind, day, hours ?? t, state);
   }
 
-  static List<Substitute> fromSduiJson(JsonObject json, HashMap<String, Time> times, String grade, {JsonObject? parent}) {
+  static List<Substitute> fromSduiJson(JsonObject json, HashMap<int, Time> times, String grade, {JsonObject? parent}) {
     List<Substitute> s = [];
     String? kind = castOr(json['kind'], null);
-    if (kind != null && kind.isNotEmpty && castOr<JsonArray>(json['grades'], []).any((g) => g['shortcut'] == grade)) {
+    if (kind != null && kind.isNotEmpty && castToJsonArray(json['grades']).any((g) => g['shortcut'] == grade)) {
       s.addAll(
-          castOr<List<int>>(json['dates'], [])
+          castListOr<int>(json['dates'], [])
               .map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000))
               .where((d) => d.isAfter(DateTime.now()))
               .map((d) =>
                 Substitute(
                     castOr(json['id'], 0),
                     d,
-                    json['description'],
+                    json['description'] ?? '',
                     _tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),
                     getKey(getKey(json, 'course'), 'meta')?['shortname'] ?? '',
                     _tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
@@ -93,7 +93,7 @@ class Substitute {
               )
       );
     }
-    s.addAll((json['substituted_target_lessons'] as JsonArray? ?? [])
+    s.addAll(castToJsonArray(json['substituted_target_lessons'])
         .expand((lesson) => fromSduiJson(lesson, times, grade, parent: json)));
     return s;
   }

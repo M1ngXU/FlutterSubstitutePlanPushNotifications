@@ -13,6 +13,9 @@ LoginData _$LoginDataFromJson(Map<String, dynamic> json) => LoginData(
       token: json['token'] == null
           ? null
           : Token.fromJson(json['token'] as Map<String, dynamic>),
+      self: json['self'] == null
+          ? null
+          : Self.fromJson(json['self'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$LoginDataToJson(LoginData instance) => <String, dynamic>{
@@ -20,4 +23,5 @@ Map<String, dynamic> _$LoginDataToJson(LoginData instance) => <String, dynamic>{
       'password': instance.password,
       'school': instance.school,
       'token': instance.token?.toJson(),
+      'self': instance.self?.toJson(),
     };

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:better_sdui_push_notification/util.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../sdui_protocol/self.dart';
 import '../sdui_protocol/token.dart';
 
 part 'login_data.g.dart';
@@ -13,8 +14,9 @@ class LoginData {
   final String password;
   final String school;
   Token? token;
+  Self? self;
 
-  LoginData({required this.username, required this.password, required this.school, this.token});
+  LoginData({required this.username, required this.password, required this.school, this.token, this.self});
 
   factory LoginData.fromJson(JsonObject json) => _$LoginDataFromJson(json);
 

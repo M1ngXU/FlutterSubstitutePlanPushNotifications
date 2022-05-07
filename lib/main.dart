@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:better_sdui_push_notification/cache/manager.dart';
@@ -6,18 +5,15 @@ import 'package:better_sdui_push_notification/sdui_protocol/agent.dart';
 import 'package:flutter/material.dart';
 
 import 'cache/login_data.dart';
-/*
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   CacheManager.create().then((cacheManager) async {
-    cacheManager.write(LoginData(username: "max.obreiter@gmail.com", password: "1f9766fd56", school: "gymnasium-walldorf").toString());
-    var s = await SduiAgent.create(LoginData.fromJson(jsonDecode(cacheManager.read())));
-    log(s.loginData.toString());
+    var s = await SduiAgent.create(LoginData(username: "max.obreiter@gmail.com", password: "1f9766fd56", school: "gymnasium-walldorf"));
+    log((await s.getUpdates(await s.getTimes())).toString());
   });
   runApp(const MyApp());
-}*/
-
-void main() => runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

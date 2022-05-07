@@ -48,7 +48,7 @@ void main() {
       'bookables': [<String, dynamic> {'shortcut': 'e'}, <String, dynamic> {'shortcut': 'd'}],
       'kind': 'EVENT',
       'day': 6,
-      'time_id': 't1'
+      'time_id': 1
     }, HashMap(), 'g'), equals([Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e', 'd'], kind: 'EVENT', day: 6, hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)])));
 
     test('`substituted_target_lessons` only, with some in the past, also different times, no time_id', () =>
@@ -66,7 +66,7 @@ void main() {
                 'bookables': [<String, dynamic>{'shortcut': 'e'}],
                 'kind': 'ADDITIONAL',
                 'day': 6,
-                'time_id': 't1'
+                'time_id': 1
               }, <String, dynamic>{
                 'id': 2,
                 'dates': [0, 99999999999],
@@ -79,11 +79,11 @@ void main() {
                 'bookables': [<String, dynamic>{'shortcut': 'e'}],
                 'kind': 'SUBSTITUTION',
                 'day': 1,
-                'time_id': 't2'
+                'time_id': 2
               }]
-            }, HashMap.from(<String, Time> {
-              't1': Time(1, '1'),
-              't2': Time(3, '2')
+            }, HashMap.from(<int, Time> {
+              1: Time(1, '1'),
+              2: Time(3, '2')
             }), 'g'),
             equals([
               Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e'], kind: 'ADDITIONAL', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),
@@ -107,7 +107,7 @@ void main() {
                 'bookables': [<String, dynamic>{'shortcut': 'e'}],
                 'kind': 'ADDITIONAL',
                 'day': 6,
-                'time_id': 't1'
+                'time_id': 1
               }, <String, dynamic>{
                 'id': 2,
                 'dates': [99999999999],
@@ -121,8 +121,8 @@ void main() {
                 'kind': 'SUBSTITUTION',
                 'day': 1
               }]
-            }, HashMap.from(<String, Time> {
-              't1': Time(1, '1')
+            }, HashMap.from(<int, Time> {
+              1: Time(1, '1')
             }), 'g'),
             isEmpty
         )
@@ -147,7 +147,7 @@ void main() {
                 },
                 'kind': 'CANCLED',
                 'day': 6,
-                'time_id': 't1'
+                'time_id': 1
               }, <String, dynamic>{
                 'id': 2,
                 'grades': [<String, dynamic>{'shortcut':'g'}],
@@ -159,7 +159,7 @@ void main() {
                 },
                 'kind': 'BOOKABLE_CHANGE',
                 'day': 1,
-                'time_id': 't1'
+                'time_id': 1
               }, <String, dynamic>{
                 'id': 3,
                 'dates': [0, 99999999999],
@@ -172,8 +172,8 @@ void main() {
                 'kind': 'EVENT',
                 'day': 1
               }]
-            }, HashMap.from(<String, Time> {
-              't1': Time(1, '1'),
+            }, HashMap.from(<int, Time> {
+              1: Time(1, '1'),
             }), 'g'),
             equals([
               Substitute.createDummy(id: 1, date: 99999999999000, description: 'b', teachers: ['cd', 'ef'], subject: 'd', rooms: ['e', 'f'], kind: 'CANCLED', day: 6, hours: singleTreeSet(Time(1, '1')), state: null),

@@ -1,17 +1,16 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:http/http.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../util.dart';
 
 part 'response.g.dart';
 
-T? processResponse<T>(Response res) {
-  var response = _SduiResponse.fromJson(jsonDecode(res.body));
+T? processResponse<T>(String body) {
+  var response = _SduiResponse.fromJson(jsonDecode(body));
   response.print();
-  return response.data is T ? response.data as T? : null;
+  return response.data is T? ? response.data as T? : null;
 }
 
 @JsonSerializable()
@@ -27,8 +26,8 @@ class _SduiResponse {
   JsonObject toJson() => _$SduiResponseToJson(this);
 
   print() {
-    if (status != 'SUCCESS') log('Status not `SUCCESS`, but `' + status + '`');
     meta.print();
+    if (status != 'SUCCESS') throw 'Status not `SUCCESS`, but `$status`.';
   }
 }
 

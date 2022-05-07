@@ -24,7 +24,7 @@ class Token {
 
   JsonObject toJson() => _$TokenToJson(this);
 
-  /// JSON representation for the [`Token`].
+  /// Token representation in request
   @override
-  String toString() => jsonEncode(toJson());
+  String toString() => '$type $content';
 }
