@@ -21,12 +21,14 @@ TreeSet<Time> _hoursFromJson(JSONArray hours) {
   t.addAll(hours.map(Time.fromJson));
   return t;
 }
-
-List<String> tryRetrieveShortcuts(JSONObject? json, String key, JSONObject? parent, bool checkParent) {
-  var l = (json?[key] as JSONArray? ?? []).map((e) => e['shortcut'] as String).toList();
-  if (l.isEmpty && checkParent && parent != null) l = tryRetrieveShortcuts(parent, key, null, false);
+List<String> _tryRetrieveShortcuts(JSONObject? json, String key, JSONObject? parent, bool checkParent) {
+  var l = _castOr<JSONArray>(json?[key], []).map((e) => e['shortcut'] as String).toList();
+  if (l.isEmpty && checkParent && parent != null) l = _tryRetrieveShortcuts(parent, key, null, false);
   return l;
 }
+/// casts `t` to `T` if it is possible, otherwise returns `def`
+T _castOr<T>(Object? t, T def) => t is T ? t : def;
+JSONObject? _getKey(JSONObject? json, String key) => _castOr(json?[key], null);
 
 enum SubstituteState {
   removed,
@@ -72,22 +74,27 @@ class Substitute {
 
   static List<Substitute> fromSduiJson(JSONObject json, HashMap<String, Time> times, String grade, {JSONObject? parent}) {
     List<Substitute> s = [];
-    String? kind = json['kind'];
-    if (kind != null && kind.isNotEmpty && (json['grades'] as JSONArray? ?? []).any((g) => g['shortcut'] == grade)) {
-      s.addAll((json['dates'] as List<int>? ?? []).map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000)).where((d) => d.isAfter(DateTime.now())).map((d) =>
-          Substitute(
-              json['id'],
-              d,
-              json['description'],
-              tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),
-              json['course']?['meta']?['shortname'] ?? '',
-              tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
-              kind,
-              json['day'],
-              singleTreeSet(times[json['time_id']] ?? Time(0, 'ALL DAY')),
-              null
-          )
-      ));
+    String? kind = _castOr(json['kind'], null);
+    if (kind != null && kind.isNotEmpty && _castOr<JSONArray>(json['grades'], []).any((g) => g['shortcut'] == grade)) {
+      s.addAll(
+          _castOr<List<int>>(json['dates'], [])
+              .map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000))
+              .where((d) => d.isAfter(DateTime.now()))
+              .map((d) =>
+                Substitute(
+                    _castOr(json['id'], ''),
+                    d,
+                    json['description'],
+                    _tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),
+                    _getKey(_getKey(json, 'course'), 'meta')?['shortname'] ?? '',
+                    _tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
+                    kind,
+                    _castOr(json['day'], 0),
+                    singleTreeSet(times[json['time_id']] ?? Time(0, 'ALL DAY')),
+                    null
+                )
+              )
+      );
     }
     s.addAll((json['substituted_target_lessons'] as JSONArray? ?? [])
         .expand((lesson) => fromSduiJson(lesson, times, grade, parent: json)));
