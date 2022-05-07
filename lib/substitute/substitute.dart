@@ -13,12 +13,19 @@ const _bookableChange = 'BOOKABLE_CHANGE';
 const _additional = 'ADDITIONAL';
 const _event = 'EVENT';
 const _substitution = 'SUBSTITUTION';
+const _separator = '+';
 
-List<Map<String, dynamic>> _hoursToJson(TreeSet<Time> hours) => hours.toList(growable: false).map((t) => t.toJson()).toList(growable: false);
-TreeSet<Time> _hoursFromJson(List<Map<String, dynamic>> hours) {
+JSONArray _hoursToJson(TreeSet<Time> hours) => hours.toList(growable: false).map((t) => t.toJson()).toList(growable: false);
+TreeSet<Time> _hoursFromJson(JSONArray hours) {
   TreeSet<Time> t = TreeSet<Time>();
   t.addAll(hours.map(Time.fromJson));
   return t;
+}
+
+List<String> tryRetrieveShortcuts(JSONObject? json, String key, JSONObject? parent, bool checkParent) {
+  var l = (json?[key] as JSONArray? ?? []).map((e) => e['shortcut'] as String).toList();
+  if (l.isEmpty && checkParent && parent != null) l = tryRetrieveShortcuts(parent, key, null, false);
+  return l;
 }
 
 enum SubstituteState {
@@ -33,9 +40,9 @@ class Substitute {
   final String id;
   late final DateTime date;
   final String description;
-  final String teacher;
+  final List<String> teachers;
   final String subject;
-  final String room;
+  final List<String> rooms;
   final String kind;
   final int day;
   @JsonKey(fromJson: _hoursFromJson, toJson: _hoursToJson)
@@ -46,9 +53,9 @@ class Substitute {
       this.id,
       DateTime date,
       this.description,
-      this.teacher,
+      this.teachers,
       this.subject,
-      this.room,
+      this.rooms,
       this.kind,
       this.day,
       this.hours,
@@ -56,25 +63,25 @@ class Substitute {
     this.date = DateTime(date.year, date.month, date.day);
   }
 
-  factory Substitute.createDummy({id = 'id', date = 0, description = 'description', teacher = 'teacher', subject = 'subject', room = 'room', kind = 'kind', day = 1, hours, state = SubstituteState.added}) {
+  factory Substitute.createDummy({id = 'id', date = 0, description = 'description', teachers, subject = 'subject', rooms, kind = 'kind', day = 1, hours, state = SubstituteState.added}) {
     var t = TreeSet<Time>();
     t.add(Time(0, '4'));
     t.add(Time(-1, '1'));
-    return Substitute(id, DateTime.fromMillisecondsSinceEpoch(date), description, teacher, subject, room, kind, day, hours ?? t, state);
+    return Substitute(id, DateTime.fromMillisecondsSinceEpoch(date), description, teachers ?? ['teacher'], subject, rooms ?? ['room'], kind, day, hours ?? t, state);
   }
 
-  static List<Substitute> fromSduiJson(Map<String, dynamic> json, HashMap<String, Time> times, String grade, {Map<String, dynamic>? parent}) {
+  static List<Substitute> fromSduiJson(JSONObject json, HashMap<String, Time> times, String grade, {JSONObject? parent}) {
     List<Substitute> s = [];
     String? kind = json['kind'];
-    if (kind != null && kind.isNotEmpty && (json['grades'] as List<Map<String, dynamic>>? ?? []).any((g) => g['shortcut'] == grade)) {
+    if (kind != null && kind.isNotEmpty && (json['grades'] as JSONArray? ?? []).any((g) => g['shortcut'] == grade)) {
       s.addAll((json['dates'] as List<int>? ?? []).map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000)).where((d) => d.isAfter(DateTime.now())).map((d) =>
           Substitute(
               json['id'],
               d,
               json['description'],
-              json['teachers']?[0]?['shortcut'] ?? ((kind == _cancelled || kind == _bookableChange) ? (parent?['teachers']?[0]?['shortcut']) : null) ?? '',
+              tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),
               json['course']?['meta']?['shortname'] ?? '',
-              json['bookables']?[0]?['shortcut'] ?? '',
+              tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
               kind,
               json['day'],
               singleTreeSet(times[json['time_id']] ?? Time(0, 'ALL DAY')),
@@ -82,14 +89,14 @@ class Substitute {
           )
       ));
     }
-    s.addAll((json['substituted_target_lessons'] as List<Map<String, dynamic>>? ?? [])
+    s.addAll((json['substituted_target_lessons'] as JSONArray? ?? [])
         .expand((lesson) => fromSduiJson(lesson, times, grade, parent: json)));
     return s;
   }
 
-  factory Substitute.fromJson(Map<String, dynamic> json) => _$SubstituteFromJson(json);
+  factory Substitute.fromJson(JSONObject json) => _$SubstituteFromJson(json);
 
-  Map<String, dynamic> toJson() => _$SubstituteToJson(this);
+  JSONObject toJson() => _$SubstituteToJson(this);
 
   /// JSON representation for the [`Substitute`].
   @override
@@ -101,34 +108,37 @@ class Substitute {
   bool _deepCompare(Substitute other) => id == other.id
       && date == other.date
       && description == other.description
-      && teacher == other.teacher
+      && deepEqualSet(teachers.toSet(), other.teachers.toSet())
       && subject == other.subject
-      && room == other.room
+      && deepEqualSet(rooms.toSet(), other.rooms.toSet())
       && kind == other.kind
       && day == other.day
-      && hours.difference(other.hours).isEmpty && hours.length == other.hours.length
+      && deepEqualSet(hours, other.hours)
       && state == other.state;
 
   @override
-  int get hashCode => Object.hash(id, date, description, teacher, subject, room, kind, day, hours, state);
+  int get hashCode => Object.hash(id, date, description, teachers, subject, rooms, kind, day, hours, state);
 
   String formatByKind() {
     switch (kind) {
       case _cancelled:
         return 'cancelled';
       case _bookableChange:
-        return '${'bookable change'} => $room';
+        return '${'bookable change'} => $_rooms';
       case _substitution:
-        return '${'substitution'} => $teacher|$room';
+        return '${'substitution'} => $_teachers|$_rooms';
       case _event:
       case _additional:
         return '$kind ($description)';
       default:
-        return '$kind ($subject: $teacher|$room)';
+        return '$kind ($subject: $_teachers|$_rooms)';
     }
   }
 
-  String toReadableString() => '${'Lesson'} ${hours.map((e) => e.name).join('+')} ($subject): ${formatByKind()}';
+  String get _rooms => rooms.join(_separator);
+  String get _teachers => teachers.join(_separator);
+
+  String toReadableString() => '${'Lesson'} ${hours.map((e) => e.name).join(_separator)} ($subject): ${formatByKind()}';
 
   bool subjectHourEquality(Object other) => other is Substitute && subjectHourComparison(other) == 0;
 

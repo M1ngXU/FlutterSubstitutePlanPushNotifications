@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
+import '../util.dart';
 import 'account.dart';
 
 part 'cache.g.dart';
@@ -12,9 +13,9 @@ class Cache {
 
   Cache(this.accounts);
 
-  factory Cache.fromJson(Map<String, dynamic> json) => _$CacheFromJson(json);
+  factory Cache.fromJson(JSONObject json) => _$CacheFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CacheToJson(this);
+  JSONObject toJson() => _$CacheToJson(this);
 
   /// JSON representation for the [`Cache`].
   @override

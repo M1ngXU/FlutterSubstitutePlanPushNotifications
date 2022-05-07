@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:better_sdui_push_notification/util.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'time.g.dart';
@@ -11,9 +12,9 @@ class Time implements Comparable<Time> {
 
   Time(this.order, this.name, );
 
-  factory Time.fromJson(Map<String, dynamic> json) => _$TimeFromJson(json);
+  factory Time.fromJson(JSONObject json) => _$TimeFromJson(json);
 
-  Map<String, dynamic> toJson() => _$TimeToJson(this);
+  JSONObject toJson() => _$TimeToJson(this);
 
   /// JSON representation for the [`Time`].
   @override

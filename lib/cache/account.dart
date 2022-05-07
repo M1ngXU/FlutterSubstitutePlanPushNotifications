@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:better_sdui_push_notification/cache/login_data.dart';
 import 'package:better_sdui_push_notification/substitute/substitute.dart';
+import 'package:better_sdui_push_notification/util.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'account.g.dart';
@@ -15,9 +16,9 @@ class Account {
 
   factory Account.fromLoginData(LoginData loginData) => Account(loginData: loginData);
 
-  factory Account.fromJson(Map<String, dynamic> json) => _$AccountFromJson(json);
+  factory Account.fromJson(JSONObject json) => _$AccountFromJson(json);
 
-  Map<String, dynamic> toJson() => _$AccountToJson(this);
+  JSONObject toJson() => _$AccountToJson(this);
 
   /// JSON representation for the [`Account`].
   @override

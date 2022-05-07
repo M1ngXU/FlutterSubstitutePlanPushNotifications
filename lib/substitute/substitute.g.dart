@@ -10,13 +10,13 @@ Substitute _$SubstituteFromJson(Map<String, dynamic> json) => Substitute(
       json['id'] as String,
       DateTime.parse(json['date'] as String),
       json['description'] as String,
-      json['teacher'] as String,
+      (json['teachers'] as List<dynamic>).map((e) => e as String).toList(),
       json['subject'] as String,
-      json['room'] as String,
+      (json['rooms'] as List<dynamic>).map((e) => e as String).toList(),
       json['kind'] as String,
       json['day'] as int,
       _hoursFromJson(json['hours'] as List<Map<String, dynamic>>),
-      $enumDecode(_$SubstituteStateEnumMap, json['state']),
+      $enumDecodeNullable(_$SubstituteStateEnumMap, json['state']),
     );
 
 Map<String, dynamic> _$SubstituteToJson(Substitute instance) =>
@@ -24,9 +24,9 @@ Map<String, dynamic> _$SubstituteToJson(Substitute instance) =>
       'id': instance.id,
       'date': instance.date.toIso8601String(),
       'description': instance.description,
-      'teacher': instance.teacher,
+      'teachers': instance.teachers,
       'subject': instance.subject,
-      'room': instance.room,
+      'rooms': instance.rooms,
       'kind': instance.kind,
       'day': instance.day,
       'hours': _hoursToJson(instance.hours),
@@ -36,4 +36,6 @@ Map<String, dynamic> _$SubstituteToJson(Substitute instance) =>
 const _$SubstituteStateEnumMap = {
   SubstituteState.removed: 'removed',
   SubstituteState.added: 'added',
+  SubstituteState.modified: 'modified',
+  SubstituteState.noChange: 'noChange',
 };

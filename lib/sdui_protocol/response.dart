@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:http/http.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../util.dart';
+
 part 'response.g.dart';
 
 T? processResponse<T>(Response res) {
@@ -20,9 +22,9 @@ class _SduiResponse {
 
   _SduiResponse(this.data, this.status, this.meta);
 
-  factory _SduiResponse.fromJson(Map<String, dynamic> json) => _$SduiResponseFromJson(json);
+  factory _SduiResponse.fromJson(JSONObject json) => _$SduiResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$SduiResponseToJson(this);
+  JSONObject toJson() => _$SduiResponseToJson(this);
 
   print() {
     if (status != 'SUCCESS') log('Status not `SUCCESS`, but `' + status + '`');
@@ -38,9 +40,9 @@ class _Meta {
 
   _Meta(this.warnings, this.errors, this.success);
 
-  factory _Meta.fromJson(Map<String, dynamic> json) => _$MetaFromJson(json);
+  factory _Meta.fromJson(JSONObject json) => _$MetaFromJson(json);
 
-  Map<String, dynamic> toJson() => _$MetaToJson(this);
+  JSONObject toJson() => _$MetaToJson(this);
 
   print() {
     success.forEach(log);

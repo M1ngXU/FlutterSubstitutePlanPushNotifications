@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:better_sdui_push_notification/util.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../sdui_protocol/token.dart';
@@ -15,9 +16,9 @@ class LoginData {
 
   LoginData({required this.username, required this.password, required this.school, this.token});
 
-  factory LoginData.fromJson(Map<String, dynamic> json) => _$LoginDataFromJson(json);
+  factory LoginData.fromJson(JSONObject json) => _$LoginDataFromJson(json);
 
-  Map<String, dynamic> toJson() => _$LoginDataToJson(this);
+  JSONObject toJson() => _$LoginDataToJson(this);
 
   /// JSON representation for the [`LoginData`].
   @override
