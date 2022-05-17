@@ -1,6 +1,5 @@
-import 'dart:developer';
-
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/cache/logger.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:intl/intl.dart';
 
 DateTime lastUpload(JsonObject json) {
@@ -9,7 +8,7 @@ DateTime lastUpload(JsonObject json) {
     try {
       return DateFormat('yyyy-MM-dd hh:mm:ss').parse(lastUploaded);
     } catch (e, s) {
-      log('Failed to format `Last-Uploaded: $lastUploaded`. ($e)\n$s');
+      Logger.e('Failed to format `Last-Uploaded: $lastUploaded`. ($e)\n$s');
     }
   }
   return DateTime.now();

@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:substitute_plan_push_notifications/cache/logger.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../util.dart';
@@ -27,7 +27,7 @@ class _SduiResponse {
 
   print() {
     meta.print();
-    if (status != 'SUCCESS') throw 'Status not `SUCCESS`, but `$status`.';
+    if (status != 'SUCCESS') Logger.e('Status not `SUCCESS`, but `$status`.');
   }
 }
 
@@ -44,8 +44,8 @@ class _Meta {
   JsonObject toJson() => _$MetaToJson(this);
 
   print() {
-    success.forEach(log);
-    warnings.forEach(log);
-    errors.forEach(log);
+    success.forEach(Logger.vi);
+    warnings.forEach(Logger.vw);
+    errors.forEach(Logger.ve);
   }
 }

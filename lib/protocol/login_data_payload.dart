@@ -1,9 +1,7 @@
 import 'dart:convert';
 
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import '../cache/login_data.dart';
 
 part 'login_data_payload.g.dart';
 
@@ -18,7 +16,6 @@ class LoginDataPayload {
   final stayLoggedIn = true;
 
   LoginDataPayload(this.username, this.password, this.school);
-  factory LoginDataPayload.fromLoginData(LoginData ld) => LoginDataPayload(ld.username, ld.password, ld.school);
 
   factory LoginDataPayload.fromJson(JsonObject json) => _$LoginDataPayloadFromJson(json);
 

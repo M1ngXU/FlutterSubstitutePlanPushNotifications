@@ -1,22 +1,20 @@
 import 'dart:convert';
 
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../sdui_protocol/self.dart';
-import '../sdui_protocol/token.dart';
+import '../protocol/self.dart';
+import '../protocol/token.dart';
 
 part 'login_data.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class LoginData {
-  final String username;
-  final String password;
-  final String school;
-  Token? token;
+  final Uri uri;
+  final Token token;
   Self? self;
 
-  LoginData({required this.username, required this.password, required this.school, this.token, this.self});
+  LoginData(this.uri, this.token, {this.self});
 
   factory LoginData.fromJson(JsonObject json) => _$LoginDataFromJson(json);
 

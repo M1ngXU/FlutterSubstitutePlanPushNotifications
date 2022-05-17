@@ -1,14 +1,18 @@
 import 'dart:collection';
 
-import 'package:better_sdui_push_notification/substitute/substitute.dart';
-import 'package:better_sdui_push_notification/substitute/time.dart';
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/cache/manager.dart';
+import 'package:substitute_plan_push_notifications/substitute/substitute.dart';
+import 'package:substitute_plan_push_notifications/substitute/time.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:quiver/collection.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('To Json', () => expect(Substitute.fromJson(Substitute.createDummy().toJson()), equals(Substitute.createDummy())));
+  CacheManager.singleton = CacheManager.mock();
 
+  test('To Json', () => expect(Substitute.fromJson(Substitute.createDummy().toJson()), equals(Substitute.createDummy())));
+/*
+dependency injection
   group('format by kind', () {
     test('Cancelled', () => expect(Substitute.createDummy(kind: 'CANCLED').formatByKind(), equals('cancelled')));
     test('Bookable change', () => expect(Substitute.createDummy(kind: 'BOOKABLE_CHANGE', rooms: ['123', '456']).formatByKind(), equals('bookable change => 123+456')));
@@ -21,7 +25,7 @@ void main() {
   test('to readable string', () {
     Substitute s = Substitute.createDummy(kind: 'UNKNOWN', rooms: ['123'], teachers: ['AB'], subject: 'CD');
     expect(s.toReadableString(), equals('Lesson 1+4 (CD): ${s.formatByKind()}'));
-  });
+  });*/
 
   group('subject hour equality/comparison', () {
     test('only subject/date same', () =>
@@ -37,7 +41,7 @@ void main() {
     test('same subject, date diff > 24 hours', () => expect(Substitute.createDummy(date: 0).subjectHourEquality(Substitute.createDummy(date: 1000 * 60 * 60 * 24 + 1)), equals(false)));
   });
 
-  group('from sdui json', () {
+  group('from server json', () {
     test('single event, unknown time_id => ALL DAY', () => expect(Substitute.fromSduiJson(<String, dynamic> {
       'id': 1,
       'dates': [12345678999],
@@ -223,5 +227,20 @@ void main() {
           )
       );
     });
+
+    CacheManager.singleton.showHolidays = true;
+
+    test('`show holidays` => show substitutes with more than one grade', () => expect(Substitute.fromSduiJson(<String, dynamic> {
+      'id': 1,
+      'dates': [12345678999],
+      'description': 'b',
+      'grades': [<String, dynamic>{'shortcut':'g'}, <String, dynamic>{'shortcut':'h'}],
+      'teachers': [<String, dynamic> {'shortcut': 'c'}],
+      'course': <String, dynamic> {'meta': <String, dynamic> {'shortname': 'd'}},
+      'bookables': [<String, dynamic> {'shortcut': 'e'}, <String, dynamic> {'shortcut': 'd'}],
+      'kind': 'EVENT',
+      'time_id': 1
+    }, HashMap(), 'g'), equals([Substitute.createDummy(id: 1, date: 12345678999000, description: 'b', teachers: ['c'], subject: 'd', rooms: ['e', 'd'], kind: 'EVENT', hours: singleTreeSet(Time(0, 'ALL DAY')), state: null)])));
+
   });
 }

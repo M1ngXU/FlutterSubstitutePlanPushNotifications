@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(better_sdui_push_notification LANGUAGES CXX)
+project(substitute_plan_push_notifications LANGUAGES CXX)
 
-set(BINARY_NAME "better_sdui_push_notification")
+set(BINARY_NAME "substitute_plan_push_notifications")
 
 cmake_policy(SET CMP0063 NEW)
 

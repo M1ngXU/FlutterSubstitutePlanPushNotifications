@@ -1,7 +1,7 @@
-import 'package:better_sdui_push_notification/substitute/manager.dart';
-import 'package:better_sdui_push_notification/substitute/substitute.dart';
-import 'package:better_sdui_push_notification/substitute/time.dart';
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/substitute/manager.dart';
+import 'package:substitute_plan_push_notifications/substitute/substitute.dart';
+import 'package:substitute_plan_push_notifications/substitute/time.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:test/test.dart';
 
 void main() {

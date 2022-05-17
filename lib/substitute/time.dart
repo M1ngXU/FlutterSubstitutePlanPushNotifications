@@ -1,34 +1,42 @@
 import 'dart:convert';
 
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
+import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'time.g.dart';
+
+DateTime? _parseDate(String s) {
+  try {
+    return DateFormat('yyyy-MM-ddTHH:mm:ss').parse(s);
+  } catch (_) {
+    return null;
+  }
+}
 
 @JsonSerializable(explicitToJson: true)
 class Time implements Comparable<Time> {
   final int order;
   final String name;
-  late final DateTime from;
-  late final DateTime to;
+  final DateTime from;
+  final DateTime to;
 
-  Time(this.order, this.name, [DateTime? from, DateTime? to]) {
-    this.from = from ?? DateTime(0);
-    this.to = to ?? DateTime(0);
-  }
+  Time(this.order, this.name, [DateTime? from, DateTime? to]) :
+    from = from ?? DateTime(0),
+    to = to ?? DateTime(0);
 
   factory Time.fromJson(JsonObject json) => _$TimeFromJson(json);
 
-  static Times fromSduiJson(JsonArray json) {
+  static Times fromServerJson(JsonArray json) {
     var t = Times();
     for (var time in json) {
       t.putIfAbsent(
           castOr(time['id'], 0),
           () => Time(
-              DateTime.tryParse(castOr(time['begins_at'], ''))?.millisecondsSinceEpoch ?? 0,
+            _parseDate(castOr(time['begins_at'], ''))?.millisecondsSinceEpoch ?? 0,
               castOr(getKey(time, 'meta')?['displayname'], ''),
-            DateTime.tryParse(castOr(time['begins_at'], '')) ?? DateTime(0),
-            DateTime.tryParse(castOr(time['ends_at'], '')) ?? DateTime(0),
+            _parseDate(castOr(time['begins_at'], ''))?.toLocal(),
+            _parseDate(castOr(time['ends_at'], ''))?.toLocal(),
           )
       );
     }

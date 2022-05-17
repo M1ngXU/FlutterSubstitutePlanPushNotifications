@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:better_sdui_push_notification/substitute/substitute.dart';
+import 'package:substitute_plan_push_notifications/substitute/substitute.dart';
 import 'package:quiver/collection.dart';
 
 /// sets all the states
@@ -17,7 +17,8 @@ List<Substitute> updateSubstituteList(List<Substitute> old, List<Substitute> cur
     try {
       cur.firstWhere((other) => substitute.id == other.id);
     } catch(_) {
-      substitute.state = substitute.date.isBefore(DateTime.now()) ? SubstituteState.expired : SubstituteState.removed;
+      substitute.state = substitute.date.isBefore(DateTime.now())
+          ? SubstituteState.expired : SubstituteState.removed;
       cur.add(substitute);
     }
   }
@@ -30,7 +31,12 @@ SortedSubstitutes sortSubstitutes(List<Substitute> substitutes) {
   for (var substitute in substitutes) {
     var date = s.putIfAbsent(substitute.date, () => TreeSet<Substitute>(comparator: (a, b) => a.subjectHourComparison(b)));
     try {
-      date.firstWhere((sub) => sub.subjectHourEquality(substitute)).hours.addAll(substitute.hours);
+      var d = date.firstWhere((sub) => sub.subjectHourEquality(substitute));
+      if (substitute.kind == event) {
+        d.kind = event;
+        if (d.comment.isEmpty) d.comment = substitute.comment;
+      }
+      d.hours.addAll(substitute.hours);
     } catch(_) {
       date.add(substitute);
     }

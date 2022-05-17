@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'self.g.dart';
@@ -12,6 +12,8 @@ class Self {
   final String grade;
 
   Self(this.name, this.id, this.grade);
+
+  String toInformationString() => '$name $grade\n($id)';
 
   factory Self.fromJson(JsonObject json) => _$SelfFromJson(json);
   /// throws an error if failed to extract

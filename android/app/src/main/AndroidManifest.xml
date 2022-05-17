@@ -1,11 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.bettersdui.better_sdui_push_notification">
-    <uses-permission android:name="android.permission.INTERNET" />
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.mingxu.substitute_plan_push_notifications">
+    <uses-permission android:name="android.permission.INTERNET"/>
 
    <application
-        android:label="better_sdui_push_notification"
+        android:label="Substitute Plan Push Notifications"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+       tools:replace="android:label"
+       android:icon="@mipmap/ic_app_icon"
+       android:roundIcon="@mipmap/ic_app_icon_round">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -13,7 +16,8 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="UnusedAttribute">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues

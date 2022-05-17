@@ -1,26 +1,58 @@
-import 'dart:collection';
 import 'dart:convert';
 
-import 'package:better_sdui_push_notification/substitute/time.dart';
-import 'package:better_sdui_push_notification/util.dart';
+import 'package:substitute_plan_push_notifications/cache/manager.dart';
+import 'package:substitute_plan_push_notifications/substitute/time.dart';
+import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:quiver/collection.dart';
 
+import '../generated/l10n.dart';
+
 part 'substitute.g.dart';
 
-const _cancelled = 'CANCLED';
+const _cancellation = 'CANCLED';
 const _bookableChange = 'BOOKABLE_CHANGE';
 const _additional = 'ADDITIONAL';
-const _event = 'EVENT';
+const event = 'EVENT';
 const _substitution = 'SUBSTITUTION';
+Map<String, String Function()> _translationByKind = {
+  _cancellation: () => S.current.cancellation,
+  _bookableChange: () => S.current.bookableChange,
+  _substitution: () => S.current.substitution,
+  event: () => S.current.event,
+  _additional: () => S.current.additional
+};
+Map<String, IconData> _iconByKind = {
+  _cancellation: Icons.cancel_outlined,
+  _bookableChange: Icons.drive_file_move_outline,
+  _substitution: Icons.find_replace_rounded,
+  event: Icons.event_note_outlined,
+  _additional: Icons.add_circle_outline_outlined
+};
+Map<String, String Function(Substitute)> _kindFormatter = {
+  _cancellation: (s) => s.translatedKind,
+  _bookableChange: (s) => '${s.translatedKind} => ${s._rooms}',
+  _substitution: (s) => '${s.translatedKind} => ${s._teachers}|${s._rooms}',
+  event: (s) => s.comment.isEmpty ? s.translatedKind : s.formattedComment,
+  _additional: (s) {
+    var kind = s.translatedKind;
+    String before = '';
+    String after = '';
+    if (s.comment.isNotEmpty) {
+      before = '${s.formattedComment} (';
+      after = ')';
+    }
+    return '$before$kind$after';
+  }
+};
 const _separator = '+';
 
 JsonArray _hoursToJson(TreeSet<Time> hours) => hours.toList(growable: false).map((t) => t.toJson()).toList(growable: false);
-TreeSet<Time> _hoursFromJson(JsonArray hours) {
+TreeSet<Time> _hoursFromJson(List<dynamic> hours) {
   TreeSet<Time> t = TreeSet<Time>();
-  t.addAll(hours.map(Time.fromJson));
+  t.addAll(castToJsonArray(hours).map(Time.fromJson));
   return t;
 }
 List<String> _tryRetrieveShortcuts(JsonObject? json, String key, JsonObject? parent, bool checkParent) {
@@ -37,16 +69,19 @@ enum SubstituteState {
   noChange,
   expired
 }
+extension SubstituteStateExtension on SubstituteState {
+  bool get needsSave => this == SubstituteState.added || this == SubstituteState.modified || this == SubstituteState.noChange;
+}
 
 @JsonSerializable(explicitToJson: true)
 class Substitute {
   final int id;
-  late final DateTime date;
-  final String description;
+  final DateTime date;
+  String comment;
   final List<String> teachers;
   final String subject;
   final List<String> rooms;
-  final String kind;
+  String kind;
   @JsonKey(fromJson: _hoursFromJson, toJson: _hoursToJson)
   late TreeSet<Time> hours = TreeSet<Time>();
   SubstituteState? state;
@@ -54,15 +89,14 @@ class Substitute {
   Substitute(
       this.id,
       DateTime date,
-      this.description,
+      this.comment,
       this.teachers,
       this.subject,
       this.rooms,
       this.kind,
       this.hours,
-      this.state) {
-    this.date = DateTime(date.year, date.month, date.day);
-  }
+      this.state
+  ) : date = DateTime(date.year, date.month, date.day);
 
   factory Substitute.createDummy({int id = 0, date = 0, description = 'description', teachers, subject = 'subject', rooms, kind = 'kind', hours, state = SubstituteState.added}) {
     var t = TreeSet<Time>();
@@ -74,22 +108,28 @@ class Substitute {
   static List<Substitute> fromSduiJson(JsonObject json, Times times, String grade, {JsonObject? parent}) {
     List<Substitute> s = [];
     String? kind = castOr(json['kind'], null);
-    /// holidays are for all grades and these take up lots of space
-    if (kind != null && kind.isNotEmpty && !castToJsonArray(json['grades']).any((g) => g['shortcut'] != grade)) {
+    if (kind != null && [json, parent]
+        .map((g) => castToJsonArray(g?['grades'])
+          .map((g) => g['shortcut'])
+          .whereType<String>()
+        )
+        .any((g) => CacheManager.singleton.showHolidays ? g.contains(grade) : (g.length == 1 && g.first == grade))
+    ) {
       s.addAll(
           castListOr<int>(json['dates'], [])
               .map((d) => DateTime.fromMillisecondsSinceEpoch(d * 1000))
-              .where((d) => d.isAfter(DateTime.now()))
-              .map((d) =>
-                Substitute(
+              .where((d) => !d.isBefore(DateTime.now().stripHours()))
+              .map((d) => Substitute(
                     castOr(json['id'], 0),
                     d,
-                    json['description'] ?? '',
-                    _tryRetrieveShortcuts(json, 'teachers', parent, kind == _cancelled || kind == _bookableChange),
+                    json['comment'] ?? '',
+                    _tryRetrieveShortcuts(json, 'teachers', parent,
+                        kind == _cancellation || kind == _bookableChange),
                     getKey(getKey(json, 'course'), 'meta')?['shortname'] ?? '',
-                    _tryRetrieveShortcuts(json, 'bookables', parent, kind == _cancelled),
+                    _tryRetrieveShortcuts(
+                        json, 'bookables', parent, kind == _cancellation),
                     kind,
-                    singleTreeSet(times[json['time_id']] ?? Time(0, 'ALL DAY')),
+                    singleTreeSet(times[json['time_id']] ?? times[parent?['time_id']] ?? Time(-1, '')),
                     null
                 )
               )
@@ -113,7 +153,7 @@ class Substitute {
 
   bool _deepCompare(Substitute other) => id == other.id
       && date == other.date
-      && description == other.description
+      && comment == other.comment
       && deepEqualSet(teachers.toSet(), other.teachers.toSet())
       && subject == other.subject
       && deepEqualSet(rooms.toSet(), other.rooms.toSet())
@@ -122,52 +162,34 @@ class Substitute {
       && state == other.state;
 
   @override
-  int get hashCode => Object.hash(id, date, description, teachers, subject, rooms, kind, hours, state);
+  int get hashCode => Object.hash(id, date, comment, teachers, subject, rooms, kind, hours, state);
 
-  String formatByKind() {
-    switch (kind) {
-      case _cancelled:
-        return 'cancelled';
-      case _bookableChange:
-        return '${'bookable change'} => $_rooms';
-      case _substitution:
-        return '${'substitution'} => $_teachers|$_rooms';
-      case _event:
-      case _additional:
-        return '$kind${_spaceParenthesisIfNotEmpty(description)}';
-      default:
-        return '$kind ($subject: $_teachers|$_rooms)';
-    }
+  /// gets the translated lesson representation (e.g. all day, Lesson 1+2)
+  String get lessons {
+    var lessons = hours.map((e) => e.name).where((e) => e.isNotEmpty);
+    return lessons.isEmpty ? S.current.allDay : '${S.current.lesson} ${lessons.join(_separator)}';
   }
+  String get formattedDate => DateFormat.MMMMEEEEd(CacheManager.singleton.dateLocale).format(date);
+  String get translatedKind => _translationByKind[kind]?.call() ?? S.current.unknownKind;
+  String get formattedKind => _kindFormatter[kind]?.call(this) ?? '$kind ($subject: $_teachers|$_rooms)';
+  /// tries to format the comment using different regexes
+  String get formattedComment => RegExp(r'Beschreibung:\s*.*?;' '\n' r'Stunde:\s*\d\/\d;').hasMatch(comment) ? S.current.exam : comment;
 
-  IconData getIcon() {
-    switch (kind) {
-      case _cancelled:
-        return Icons.clear;
-      case _bookableChange:
-        return Icons.login;
-      case _substitution:
-        return Icons.update;
-      case _event:
-      case _additional:
-        return Icons.add;
-      default:
-        return Icons.question_mark;
-    }
-  }
+  IconData get icon => _iconByKind[kind] ?? Icons.question_mark;
 
   String get _rooms => rooms.join(_separator);
   String get _teachers => teachers.join(_separator);
 
-  String toReadableString() => '${'Lesson'} ${hours.map((e) => e.name).join(_separator)}${_spaceParenthesisIfNotEmpty(subject)}: ${formatByKind()}';
+  String toReadableString() => '$lessons${_spaceParenthesisIfNotEmpty(subject)}: $formattedKind';
 
-  String getTimeRangeString(DateFormat timeFormatter) {
-    if (hours.isEmpty) return '';
+  String getTimeRangeString(BuildContext context, DateFormat timeFormatter) {
+    if (hours.every((e) => e.order == -1)) return '';
     StringBuffer result = StringBuffer();
-    result.write(timeFormatter.format(hours.first.from));
-    if (hours.length > 1) result.write(' (${hours.first.name})');
+    var first = hours.firstWhere((t) => t.order != -1);
+    result.write(timeFormatter.format(first.from.toLocal()));
+    if (hours.length > 1) result.write(' (${first.name})');
     result.writeln();
-    result.write(timeFormatter.format(hours.last.to));
+    result.write(timeFormatter.format(hours.last.to.toLocal()));
     if (hours.length > 1) result.write(' (${hours.last.name})');
     return result.toString();
   }

@@ -1,4 +1,4 @@
-SF:lib\sdui_protocol\last_upload.dart
+SF:lib\protocol\last_upload.dart
 DA:6,1
 DA:7,2
 DA:10,2
@@ -61,7 +61,7 @@ DA:20,2
 LF:10
 LH:10
 end_of_record
-SF:lib\sdui_protocol\self.g.dart
+SF:lib\protocol\self.g.dart
 DA:9,2
 DA:10,1
 DA:11,1
@@ -73,7 +73,7 @@ DA:18,1
 LF:8
 LH:8
 end_of_record
-SF:lib\sdui_protocol\self.dart
+SF:lib\protocol\self.dart
 DA:14,1
 DA:16,2
 DA:18,1

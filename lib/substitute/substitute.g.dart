@@ -9,12 +9,12 @@ part of 'substitute.dart';
 Substitute _$SubstituteFromJson(Map<String, dynamic> json) => Substitute(
       json['id'] as int,
       DateTime.parse(json['date'] as String),
-      json['description'] as String,
+      json['comment'] as String,
       (json['teachers'] as List<dynamic>).map((e) => e as String).toList(),
       json['subject'] as String,
       (json['rooms'] as List<dynamic>).map((e) => e as String).toList(),
       json['kind'] as String,
-      _hoursFromJson(json['hours'] as List<Map<String, dynamic>>),
+      _hoursFromJson(json['hours'] as List),
       $enumDecodeNullable(_$SubstituteStateEnumMap, json['state']),
     );
 
@@ -22,7 +22,7 @@ Map<String, dynamic> _$SubstituteToJson(Substitute instance) =>
     <String, dynamic>{
       'id': instance.id,
       'date': instance.date.toIso8601String(),
-      'description': instance.description,
+      'comment': instance.comment,
       'teachers': instance.teachers,
       'subject': instance.subject,
       'rooms': instance.rooms,

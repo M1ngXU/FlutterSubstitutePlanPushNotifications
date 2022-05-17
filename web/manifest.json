@@ -1,6 +1,6 @@
 {
-    "name": "better_sdui_push_notification",
-    "short_name": "better_sdui_push_notification",
+    "name": "substitute_plan_push_notifications",
+    "short_name": "substitute_plan_push_notifications",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

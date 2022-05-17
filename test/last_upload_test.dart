@@ -1,8 +1,8 @@
-import 'package:better_sdui_push_notification/sdui_protocol/last_upload.dart';
+import 'package:substitute_plan_push_notifications/protocol/last_upload.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('from sdui json', () =>
+  test('from server json', () =>
       expect(
           lastUpload(<String, dynamic>{'Last-Uploaded': '2022-02-02 02:02:02'}),
           equals(DateTime(2022, 2, 2, 2, 2, 2))

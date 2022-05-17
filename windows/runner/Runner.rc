@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.bettersdui" "\0"
-            VALUE "FileDescription", "better_sdui_push_notification" "\0"
+            VALUE "CompanyName", "com.mingxu" "\0"
+            VALUE "FileDescription", "substitute_plan_push_notifications" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "better_sdui_push_notification" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022 com.bettersdui. All rights reserved." "\0"
-            VALUE "OriginalFilename", "better_sdui_push_notification.exe" "\0"
-            VALUE "ProductName", "better_sdui_push_notification" "\0"
+            VALUE "InternalName", "substitute_plan_push_notifications" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2022 com.mingxu. All rights reserved." "\0"
+            VALUE "OriginalFilename", "substitute_plan_push_notifications.exe" "\0"
+            VALUE "ProductName", "substitute_plan_push_notifications" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

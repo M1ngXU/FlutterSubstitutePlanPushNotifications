@@ -1,6 +1,6 @@
-# better_sdui_push_notification
+# substitute_plan_push_notifications
 
-Better sdui push notification
+Substitute Plan Push Notifications
 
 ## Getting Started
 

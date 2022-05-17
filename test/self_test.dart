@@ -1,6 +1,4 @@
-import 'dart:collection';
-
-import 'package:better_sdui_push_notification/sdui_protocol/self.dart';
+import 'package:substitute_plan_push_notifications/protocol/self.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -8,7 +6,7 @@ void main() {
     final s = Self('a b', 1, 'g');
     expect(Self.fromJson(s.toJson()), equals(s));
   });
-  test('from sdui json', () =>
+  test('from json', () =>
       expect(
           Self.fromSduiJson(<String, dynamic>{
             'firstname': 'a',

@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:better_sdui_push_notification/substitute/time.dart';
+import 'package:substitute_plan_push_notifications/substitute/time.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -10,9 +10,9 @@ void main() {
     expect(Time(2, '').compareTo(Time(1, '')), 1);
   });
 
-  test('sdui json to hashmap, two elements', () =>
+  test('server json to hashmap, two elements', () =>
       expect(
-          Time.fromSduiJson([
+          Time.fromServerJson([
             <String, dynamic>{
               'begins_at': '1970-01-01T07:25:00+01:00',
               'id': 12345,
@@ -36,7 +36,7 @@ void main() {
 
   test('bad data, no exception', () =>
     expect(
-        () => Time.fromSduiJson([
+        () => Time.fromServerJson([
           <String, dynamic>{
             'begins_at': true,
             'id': ['array'],
