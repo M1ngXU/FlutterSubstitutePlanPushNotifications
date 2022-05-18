@@ -70,7 +70,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "loggingIn": MessageLookupByLibrary.simpleMessage("Anmelden ..."),
         "loggingOut": MessageLookupByLibrary.simpleMessage("Abmelden ..."),
         "login": MessageLookupByLibrary.simpleMessage("Anmelden"),
-        "loginFailed": MessageLookupByLibrary.simpleMessage("Angemeldet!"),
+        "loginFailed":
+            MessageLookupByLibrary.simpleMessage("Login fehlgeschlagen!"),
         "logout": MessageLookupByLibrary.simpleMessage("Abmelden"),
         "logs": MessageLookupByLibrary.simpleMessage("Logs"),
         "newVersion": MessageLookupByLibrary.simpleMessage("Neue Version!"),

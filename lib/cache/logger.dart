@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as dev;
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -55,7 +57,7 @@ class Logger {
       scaffold!.currentState!.showSnackBar(SnackBar(
           content: Row(
               children: [
-                lt.getIcon(),
+                lt.getIcon(scaffold!.currentContext!),
                 Flexible(
                     child: Container(
                       padding: const EdgeInsets.only(left: 5.0),
@@ -143,17 +145,17 @@ extension LogTypeExtension on LogType {
     LogType.warning: Colors.yellow,
     LogType.error: Colors.red
   };
-  static const Map<LogType, IconData> _iconRepresentation = {
-    LogType.debug: Icons.bug_report_outlined,
-    LogType.info: Icons.info_outline_rounded,
-    LogType.warning: Icons.warning_amber_rounded,
-    LogType.error: Icons.error_outline_rounded
+  static final Map<LogType, IconData Function(PlatformIcons)> _iconRepresentation = {
+    LogType.debug: (_) => Icons.bug_report_outlined,
+    LogType.info: (p) => isMaterial(p.context) ? Icons.info_outline_rounded : CupertinoIcons.info,
+    LogType.warning: (_) => Icons.warning_amber_rounded,
+    LogType.error: (p) => isMaterial(p.context) ? Icons.error_outline_rounded : CupertinoIcons.exclamationmark_circle
   };
 
   String getFormattedString() => '[${_stringRepresentation[this]}]'
       .padRight(_stringRepresentation.values.fold<int>(0, (a, s1) => max(a, s1.length)) + 2);
 
   Color getColor() => _colorRepresentation[this]!;
-  IconData getIconData() => _iconRepresentation[this]!;
-  Icon getIcon() => Icon(getIconData(), color: getColor());
+  IconData getIconData(BuildContext ctx) => _iconRepresentation[this]!(PlatformIcons(ctx));
+  Icon getIcon(BuildContext ctx) => Icon(getIconData(ctx), color: getColor());
 }

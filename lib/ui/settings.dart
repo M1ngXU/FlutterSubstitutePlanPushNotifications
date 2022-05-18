@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/cache/manager.dart';
 import 'package:substitute_plan_push_notifications/main.dart';
 import 'package:substitute_plan_push_notifications/manager.dart';
@@ -27,6 +28,18 @@ const List<IconData> _filter = [
   Icons.filter_9_plus_rounded,
 ];
 IconData _getFilterIcon(int i) => _filter[min(max(i, 0), _filter.length - 1)];
+Widget _getTitle(BuildContext ctx, String title, String? description) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title),
+      if (description != null) Text(description, style: Theme.of(ctx).textTheme.bodySmall)
+    ]
+);
+Widget _formattedLanguage(BuildContext ctx, String? nullableLocale) => Text(
+  LocaleNames.of(ctx)?.nameOf(nullableLocale ?? S.of(ctx).invalidLocale)
+      ?? S.of(ctx).systemLanguage.replaceAll(' ', '\n'),
+  textAlign: TextAlign.center,
+);
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -113,45 +126,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           tiles: [
             SettingsTile.switchTile(
               onToggle: (v) {
-                CacheManager.singleton.showHolidays = v;
-                return false;
+                _showHolidays = CacheManager.singleton.showHolidays = v;
+                return true;
               },
               initialValue: _showHolidays,
-              leading: const Icon(Icons.announcement),
-              title: Text(S.of(context).holidays),
-              description: Text(S.of(context).showSubstitutesForHolidays),
+              leading: const Icon(Icons.announcement_outlined),
+              title: _getTitle(
+                  context,
+                  S.of(context).holidays,
+                  S.of(context).showSubstitutesForHolidays
+              ),
             ),
           ],
         ),
         SettingsSection(
           title: Text(S.of(context).language),
           tiles: [
-            SettingsTile(
-              title: Text(S.of(context).dateLocale),
-              description: Text(S.of(context).dateFormatting),
-              trailing: Row(children: [
-                Text((LocaleNames.of(context)?.nameOf(_dateLocale ?? S.of(context).invalidLocale) ?? S.of(context).systemLanguage)
-                    .replaceAll(' ', '\n'), textAlign: TextAlign.center,),
-                const Icon(Icons.chevron_right)
-              ]),
-              leading: const Icon(Icons.language),
-              onPressed: (context) {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => LanguageScreen(
-                      DateFormat.allLocalesWithSymbols(),
-                      _dateLocale,
-                      (l) => CacheManager.singleton.dateLocale = l
-                  ),
-                ));
-              },
-            ),
-            SettingsTile(
+            SettingsTile.navigation(
               title: Text(S.of(context).language),
-              trailing: Row(children: [
-                Text((LocaleNames.of(context)?.nameOf(_language ?? S.of(context).invalidLocale) ?? S.of(context).systemLanguage)
-                    .replaceAll(' ', '\n'), textAlign: TextAlign.center,),
-                const Icon(Icons.chevron_right)
-              ]),
+              value: _formattedLanguage(context, _language),
               leading: const Icon(Icons.language),
               onPressed: (context) {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -163,6 +156,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ));
               },
             ),
+            SettingsTile.navigation(
+              title: _getTitle(
+                  context,
+                  S.of(context).dateLocale,
+                  S.of(context).dateFormatting
+              ),
+              value: _formattedLanguage(context, _dateLocale),
+              leading: const Icon(Icons.language),
+              onPressed: (context) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => LanguageScreen(
+                      DateFormat.allLocalesWithSymbols(),
+                      _dateLocale,
+                          (l) => CacheManager.singleton.dateLocale = l
+                  ),
+                ));
+              },
+            ),
           ],
         ),
         SettingsSection(
@@ -171,21 +182,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                 enabled: loggedIn,
                 title: Text(S.of(context).self),
-                trailing: loggedIn ? Text(_self, textAlign: TextAlign.right,) : const SizedBox(),
-                leading: const Icon(Icons.accessibility_rounded),
+                value: loggedIn ? Text(_self, textAlign: TextAlign.right,) : const SizedBox(),
+                leading: Icon(PlatformIcons(context).time),
               ),
               SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).knownIDs),
-                trailing: loggedIn ? Text(
+                value: loggedIn ? Text(
                     _knownIDs.toString(), textAlign: TextAlign.center) : const SizedBox(),
                 leading: Icon(_getFilterIcon(_knownIDs)),
               ),
               SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).lastUploaded),
-                trailing: loggedIn ? _lastServerUpdate.formattedDateTimeText() : const SizedBox(),
-                leading: const Icon(Icons.access_time),
+                value: loggedIn ? _lastServerUpdate.formattedDateTimeText() : const SizedBox(),
+                leading: Icon(PlatformIcons(context).time),
                 onPressed: (_) async {
                   await Manager.singleton.getLastServerUpdate();
                 },
@@ -196,11 +207,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: Text(S.of(context).actions),
           tiles: [
             SettingsTile(
-                title: Text(S.of(context).lastFetched),
-                description: loggedIn ? (_refreshing
-                    ? Text(S.of(context).refreshingSubstitutes)
-                    : Text(S.of(context).clickToRefresh)) : const SizedBox(),
-                trailing: loggedIn ? _lastClientUpdate.formattedDateTimeText() : const SizedBox(),
+                title: _getTitle(
+                    context,
+                    S.of(context).lastFetched,
+                    loggedIn ? _refreshing ? S.of(context).refreshingSubstitutes : S.of(context).clickToRefresh : null
+                ),
+                value: loggedIn ? _lastClientUpdate.formattedDateTimeText() : const SizedBox(),
                 leading: _refreshing ? LayoutBuilder(
                     builder: (context, constraints) =>
                         SizedBox.fromSize(
@@ -208,23 +220,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 TextPainter(
                                     text: const TextSpan(),
                                     maxLines: 1,
-                                    textScaleFactor: MediaQuery
-                                        .of(context)
-                                        .textScaleFactor,
+                                    textScaleFactor: MediaQuery.of(context).textScaleFactor,
                                     textDirection: ui.TextDirection.ltr
-                                )
-                                  ..layout()
+                                )..layout()
                             ).height),
                             child: const CircularProgressIndicator()
                         )
-                ) : const Icon(Icons.access_time_rounded),
+                ) : Icon(PlatformIcons(context).time),
                 enabled: !_refreshing && CacheManager.singleton.loggedIn,
                 onPressed: (_) => Manager.singleton.refresh(force: true)
             ),
             SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).clearSubstitutes),
-                leading: const Icon(Icons.clear_rounded),
+                leading: Icon(PlatformIcons(context).clear),
                 onPressed: (_) {
                   CacheManager.singleton.substitutes = [];
                   Manager.singleton.refresh(force: true);
@@ -232,9 +241,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
-                title: Text(S.of(context).clearCache),
-                description: Text(S.of(context).exceptLoginData),
-                leading: const Icon(Icons.clear_rounded),
+                title: _getTitle(
+                    context,
+                    S.of(context).clearCache,
+                    S.of(context).exceptLoginData
+                ),
+                leading: Icon(PlatformIcons(context).clear),
                 onPressed: (_) {
                   CacheManager.singleton.clearCacheExceptLoginData();
                   Manager.singleton.refresh(force: true);
@@ -248,6 +260,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
+        SettingsSection(
+          tiles: [SettingsTile(title: Text.rich(
+              const TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Programmed by ',
+                  ),
+                  TextSpan(
+                    text: 'M1ngXU',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                ],
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+              style: Theme.of(context).textTheme.subtitle1,
+            textAlign: TextAlign.right,
+          ),)],
+        )
       ],
     );
   }

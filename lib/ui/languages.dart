@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class LanguageScreen extends StatefulWidget {
@@ -16,13 +17,14 @@ class LanguageScreen extends StatefulWidget {
 }
 
 SettingsTile _getTile(
+    BuildContext context,
     MapEntry<String, String?> kvp,
     String? current,
     Function(BuildContext) onPressed
 ) => SettingsTile(
     title: Text(kvp.key),
     trailing: current == kvp.value
-        ? const Icon(Icons.done, color: Colors.blue)
+        ? Icon(PlatformIcons(context).checkMark, color: Colors.blue)
         : const SizedBox(),
     onPressed: onPressed
 );
@@ -47,7 +49,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
           .cast() ?? []
     ).map((e) => MapEntry<String, String?>(e.value, e.key)).toList();
     SettingsTile? current;
-    _otherTiles = _others.map((e) => _getTile(e, widget._current, (c) => changeLocale(c, e.value))).toList();
+    _otherTiles = _others.map((e) => _getTile(context, e, widget._current, (c) => changeLocale(c, e.value))).toList();
     try {
       _otherTiles.remove(
           current = _otherTiles.firstWhere((e) => e.trailing is Icon));
@@ -59,8 +61,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
         appBar: AppBar(
           title: const Text('Languages'),
           actions: [
-            IconButton(
-                icon: const Icon(Icons.search_rounded),
+            PlatformIconButton(
+                icon: Icon(PlatformIcons(context).search),
                 onPressed: () =>
                     showSearch(
                       context: context,
@@ -90,8 +92,8 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   List<Widget> buildActions(BuildContext context) => [
-      IconButton(
-        icon: const Icon(Icons.clear),
+      PlatformIconButton(
+        icon: Icon(PlatformIcons(context).clear),
         onPressed: () {
           query = '';
         },
@@ -99,8 +101,8 @@ class CustomSearchDelegate extends SearchDelegate {
     ];
 
   @override
-  Widget buildLeading(BuildContext context) => IconButton(
-      icon: const Icon(Icons.arrow_back_rounded),
+  Widget buildLeading(BuildContext context) => PlatformIconButton(
+      icon: Icon(PlatformIcons(context).back),
       onPressed: () => close(context, _current)
     );
 
@@ -108,7 +110,7 @@ class CustomSearchDelegate extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) => SettingsList(
       sections: [SettingsSection(tiles: _others
           .where((e) => e.key.toLowerCase().startsWith(query.toLowerCase()) == true)
-          .map((e) => _getTile(e, _current, (c) => close(c, e.value)))
+          .map((e) => _getTile(context, e, _current, (c) => close(c, e.value)))
           .toList()
   )]);
 

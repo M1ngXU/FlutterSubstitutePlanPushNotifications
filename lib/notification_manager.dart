@@ -13,7 +13,8 @@ class NotificationManager {
   static init() async {
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     await _flutterLocalNotificationsPlugin.initialize(const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_app_icon')
+        android: AndroidInitializationSettings('@drawable/ic_app_icon_foreground'),
+        iOS: IOSInitializationSettings()
     ));
   }
 
@@ -32,7 +33,8 @@ class NotificationManager {
                 styleInformation: BigTextStyleInformation(content, contentTitle: title),
                 largeIcon: _largeIcon,
                 importance: Importance.high,
-            )
+            ),
+            iOS: const IOSNotificationDetails()
         )
     );
   }

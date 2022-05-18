@@ -102,7 +102,7 @@ class _SubstituteScreenState extends State<SubstituteScreen> {
                 child: ListTile(
                   contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                  leading: Icon(e.icon),
+                  leading: Icon(e.icon(context)),
                   title: Text(e.toReadableString()),
                   trailing: Text(e.getTimeRangeString(context, _timeFormatter),
                     style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()]),

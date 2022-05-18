@@ -1,4 +1,8 @@
 
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/auto_update.dart';
 import 'package:substitute_plan_push_notifications/cache/logger.dart';
 import 'package:substitute_plan_push_notifications/cache/manager.dart';
@@ -30,22 +34,38 @@ class BetterSduiPushNotifications extends StatelessWidget {
   const BetterSduiPushNotifications({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      scaffoldMessengerKey: Logger.scaffold = GlobalKey(),
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        LocaleNamesLocalizationsDelegate(),
-      ],
-      supportedLocales: S.delegate.supportedLocales,
-      localeResolutionCallback: (deviceLocale, _) => LocaleExtension.tryParse(CacheManager.singleton.nullableLanguage) ?? deviceLocale,
-      title: appName,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: const NavigatorScaffoldState(),
-    );
-  }
+  Widget build(BuildContext context) => PlatformProvider(
+      //initialPlatform: TargetPlatform.iOS,
+      builder: (context) => PlatformApp(
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            LocaleNamesLocalizationsDelegate(),
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          localeResolutionCallback: (deviceLocale, _) => LocaleExtension.tryParse(CacheManager.singleton.nullableLanguage) ?? deviceLocale,
+          title: appName,
+          cupertino: (_, __) => CupertinoAppData(
+            home: CupertinoPageScaffold(
+                resizeToAvoidBottomInset: false,
+                child: Stack(
+                    children: [
+                      Scaffold(
+                        key: Logger.scaffold = GlobalKey(),
+                      ),
+                      const NavigatorScaffoldState()
+                    ]
+                )
+            ),
+          ),
+          material: (_, __) => MaterialAppData(
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            scaffoldMessengerKey: Logger.scaffold = GlobalKey(),
+            home: const NavigatorScaffoldState()
+          )
+      )
+  );
 }

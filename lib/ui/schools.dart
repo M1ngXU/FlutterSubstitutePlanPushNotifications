@@ -1,3 +1,4 @@
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/protocol/response.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -12,8 +13,8 @@ class SchoolSearchDelegate extends SearchDelegate {
 
   @override
   List<Widget> buildActions(BuildContext context) => [
-      IconButton(
-        icon: const Icon(Icons.clear),
+      PlatformIconButton(
+        icon: Icon(PlatformIcons(context).clear),
         onPressed: () {
           query = '';
         },
@@ -21,8 +22,8 @@ class SchoolSearchDelegate extends SearchDelegate {
     ];
 
   @override
-  Widget buildLeading(BuildContext context) => IconButton(
-      icon: const Icon(Icons.arrow_back_rounded),
+  Widget buildLeading(BuildContext context) => PlatformIconButton(
+      icon: Icon(PlatformIcons(context).back),
       onPressed: () => close(context, null),
     );
 

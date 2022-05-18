@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/cache/manager.dart';
 import 'package:substitute_plan_push_notifications/substitute/time.dart';
 import 'package:substitute_plan_push_notifications/util.dart';
@@ -24,12 +26,12 @@ Map<String, String Function()> _translationByKind = {
   event: () => S.current.event,
   _additional: () => S.current.additional
 };
-Map<String, IconData> _iconByKind = {
-  _cancellation: Icons.cancel_outlined,
-  _bookableChange: Icons.drive_file_move_outline,
-  _substitution: Icons.find_replace_rounded,
-  event: Icons.event_note_outlined,
-  _additional: Icons.add_circle_outline_outlined
+Map<String, IconData Function(PlatformIcons)> _iconByKind = {
+  _cancellation: (p) => isMaterial(p.context) ? Icons.cancel_outlined : CupertinoIcons.clear_circled,
+  _bookableChange: (_) => Icons.drive_file_move_outline,
+  _substitution: (_) => Icons.find_replace_rounded,
+  event: (_) => Icons.event_note_outlined,
+  _additional: (p) => p.addCircledOutline
 };
 Map<String, String Function(Substitute)> _kindFormatter = {
   _cancellation: (s) => s.translatedKind,
@@ -158,8 +160,7 @@ class Substitute {
       && subject == other.subject
       && deepEqualSet(rooms.toSet(), other.rooms.toSet())
       && kind == other.kind
-      && deepEqualSet(hours, other.hours)
-      && state == other.state;
+      && deepEqualSet(hours, other.hours);
 
   @override
   int get hashCode => Object.hash(id, date, comment, teachers, subject, rooms, kind, hours, state);
@@ -175,7 +176,7 @@ class Substitute {
   /// tries to format the comment using different regexes
   String get formattedComment => RegExp(r'Beschreibung:\s*.*?;' '\n' r'Stunde:\s*\d\/\d;').hasMatch(comment) ? S.current.exam : comment;
 
-  IconData get icon => _iconByKind[kind] ?? Icons.question_mark;
+  IconData icon(BuildContext ctx) => _iconByKind[kind]?.call(PlatformIcons(ctx)) ?? PlatformIcons(ctx).helpOutline;
 
   String get _rooms => rooms.join(_separator);
   String get _teachers => teachers.join(_separator);

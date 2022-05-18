@@ -118,16 +118,14 @@ class Manager {
     }
     if (!needsRefresh) return false;
     var updates = sortSubstitutes((await _refresh()).toList());
-    NotificationManager.sendNotification(
-        S.current.substitutePlanUpdate,
-        updates.values.map((s) => '${s.first.formattedDate}: '
-            + (s.length == 1
-                ? s.first.toReadableString()
-                : s.map((e) => '${e.lessons.replaceFirstMapped(RegExp(r'^.*?(\d(\+\d)*)$'), (match) => match[1] ?? '')}:'
-                    ' ${e.translatedKind}').join('; ')
-            )
-        ).join('\n')
-    );
+    var content = updates.values.map((s) => '${s.first.formattedDate}: '
+        + (s.length == 1
+            ? s.first.toReadableString()
+            : s.map((e) => '${e.lessons.replaceFirstMapped(RegExp(r'^.*?(\d(\+\d)*)$'), (match) => match[1] ?? '')}:'
+            ' ${e.translatedKind}').join('; ')
+        )
+    ).join('\n');
+    if (content.isNotEmpty) NotificationManager.sendNotification(S.current.substitutePlanUpdate, content);
     return updates.isNotEmpty;
   }
 }

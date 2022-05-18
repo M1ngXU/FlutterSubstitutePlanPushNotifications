@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/cache/logger.dart';
 import 'package:substitute_plan_push_notifications/manager.dart';
 import 'package:substitute_plan_push_notifications/ui/schools.dart';
@@ -8,6 +10,52 @@ import 'package:substitute_plan_push_notifications/util.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../generated/l10n.dart';
+
+Container _getTextField(
+    TextEditingController controller,
+    String hint,
+    String autofillHint,
+    {
+      void Function()? onTap,
+      TextInputType? keyboardType,
+      Widget? suffix,
+      bool readonly = false,
+      bool obscureText = false
+    }) =>  Container(
+    alignment: Alignment.center,
+    padding: const EdgeInsets.all(5),
+    child: PlatformTextField(
+      controller: controller,
+      readOnly: readonly,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      onTap: onTap,
+      autofillHints: [autofillHint],
+      material: (_, __) => MaterialTextFieldData(
+        decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: hint,
+            suffixIcon: suffix
+        ),
+      ),
+      cupertino: (_, __) => CupertinoTextFieldData(
+          placeholder: hint,
+          placeholderStyle: const TextStyle(color: Colors.black38),
+          style: const TextStyle(color: Colors.black54),
+          decoration: BoxDecoration(
+              color: CupertinoColors.extraLightBackgroundGray,
+              border: Border.all(
+                  color: CupertinoColors.lightBackgroundGray,
+                  width: 2
+              ),
+              borderRadius: BorderRadius.circular(10)
+          ),
+          cursorColor: CupertinoColors.activeGreen,
+          suffix: suffix,
+          suffixMode: OverlayVisibilityMode.always
+      ),
+    )
+);
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController _urlController = TextEditingController();
@@ -23,83 +71,56 @@ class LoginScreen extends StatelessWidget {
       child: AutofillGroup(
           child: ListView(
             children: [
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(5),
-                child: TextField(
-                  controller: _urlController,
-                  keyboardType: TextInputType.url,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: S.of(context).serverURL,
-                  ),
-                  autofillHints: const [AutofillHints.url],
-                ),
+              _getTextField(
+                _urlController,
+                S.of(context).serverURL,
+                AutofillHints.url,
+                keyboardType: TextInputType.url
               ),
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(5),
-                child: TextField(
-                  readOnly: true,
-                  onTap: () => S.of(context).searchID.toastify(toastLength: Toast.LENGTH_LONG),
-                  controller: _slinkController,
+              _getTextField(
+                  _slinkController,
+                  S.of(context).schoolID,
+                  'slink',
+                  readonly: true,
                   keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                        icon: const Icon(Icons.search_rounded),
-                        onPressed: () async {
-                          var uri = Uri.parse(_urlController.text);
-                          bool possibleConnection = false;
-                          try {
-                            var res = await get(uri.set('v1/leads', {'search': hashCode.toString()}));
-                            possibleConnection = res.statusCode / 100 == 2;
-                            if (!possibleConnection) throw 'Bad response from server (${res.statusCode}).';
-                            showSearch(
-                              context: context,
-                              delegate: SchoolSearchDelegate(Uri.parse(_urlController.text)),
-                            ).then((value) {
-                              if (value != null) _slinkController.text = value;
-                            });
-                          } catch(e, st) {
-                            Logger.ve(S.current.invalidURL, e, st);
-                          }
+                  onTap: () => S.of(context).searchID.toastify(toastLength: Toast.LENGTH_LONG),
+                  suffix: PlatformIconButton(
+                      icon: Icon(PlatformIcons(context).search),
+                      padding: EdgeInsets.zero,
+                      onPressed: () async {
+                        var uri = Uri.parse(_urlController.text);
+                        bool possibleConnection = false;
+                        try {
+                          var res = await get(uri.set('v1/leads', {'search': hashCode.toString()}));
+                          possibleConnection = res.statusCode / 100 == 2;
+                          if (!possibleConnection) throw 'Bad response from server (${res.statusCode}).';
+                          showSearch(
+                            context: context,
+                            delegate: SchoolSearchDelegate(Uri.parse(_urlController.text)),
+                          ).then((value) {
+                            if (value != null) _slinkController.text = value;
+                          });
+                        } catch(e, st) {
+                          Logger.ve(S.current.invalidURL, e, st);
                         }
-                    ),
-                    labelText: S.of(context).schoolID,
-                  ),
-                  autofillHints: const ['slink'],
-                ),
+                      }
+                  )
               ),
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(5),
-                child: TextField(
-                  controller: _usernameController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: S.of(context).usernameEmail,
-                  ),
-                  autofillHints: const [AutofillHints.username],
-                ),
+              _getTextField(
+                _usernameController,
+                S.of(context).usernameEmail,
+                AutofillHints.username,
+                keyboardType: TextInputType.emailAddress,
               ),
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(5),
-                child: TextField(
-                  obscureText: true,
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: S.of(context).password,
-                  ),
-                  autofillHints: const [AutofillHints.password],
-                ),
+              _getTextField(
+                _passwordController,
+                S.of(context).password,
+                AutofillHints.password,
+                obscureText: true
               ),
               Container(
                   padding: const EdgeInsets.all(10),
-                  child: ElevatedButton(
+                  child: PlatformElevatedButton(
                     child: Text(S.of(context).login),
                     onPressed: () async {
                       if (await Manager.singleton.login(

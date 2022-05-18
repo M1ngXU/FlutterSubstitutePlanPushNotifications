@@ -37,7 +37,7 @@
     "loggingIn": "Anmelden ...",
     "loggingOut": "Abmelden ...",
     "login": "Anmelden",
-    "loginFailed": "Angemeldet!",
+    "loginFailed": "Login fehlgeschlagen!",
     "logout": "Abmelden",
     "logs": "Logs",
     "newVersion": "Neue Version!",

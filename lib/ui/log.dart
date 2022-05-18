@@ -1,3 +1,4 @@
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/cache/logger.dart';
 import 'package:substitute_plan_push_notifications/cache/manager.dart';
 import 'package:expandable/expandable.dart';
@@ -36,10 +37,9 @@ class _LogScreenState extends State<LogScreen> {
     super.dispose();
   }
 
-  Widget _getFilterButton(LogType lt) => IconButton(
-      icon: Icon(lt.getIconData(), color: _logTypeEnabled[lt]! ? lt.getColor() : const Color.fromRGBO(128, 128, 128, 0.3)),
+  Widget _getFilterButton(BuildContext ctx, LogType lt) => PlatformIconButton(
+      icon: Icon(lt.getIconData(ctx), color: _logTypeEnabled[lt]! ? lt.getColor() : const Color.fromRGBO(128, 128, 128, 0.3)),
       onPressed: () => setState(() => _logTypeEnabled[lt] = !_logTypeEnabled[lt]!),
-      tooltip: lt.name[0].toUpperCase() + lt.name.substring(1),
   );
 
   @override
@@ -50,20 +50,19 @@ class _LogScreenState extends State<LogScreen> {
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  IconButton(
-                      tooltip: S.of(context).clearLogs,
+                  PlatformIconButton(
                       onPressed: () => showDialog<void>(
                         context: context,
                         barrierDismissible: false,
-                        builder: (BuildContext context) => AlertDialog(
+                        builder: (BuildContext context) => PlatformAlertDialog(
                           title: Text('${S.of(context).deleteLogs} (${(Logger.logLength() / 100).floor() / 10} KB)'),
                           content: Text(S.of(context).irreversibleDeletingLogs),
                           actions: <Widget>[
-                            TextButton(
+                            PlatformDialogAction(
                               child: Text(S.of(context).cancel),
                               onPressed: () => Navigator.of(context).pop()
                             ),
-                            TextButton(
+                            PlatformDialogAction(
                               child: Text(S.of(context).delete),
                               onPressed: () {
                                 Navigator.of(context).pop();
@@ -73,9 +72,9 @@ class _LogScreenState extends State<LogScreen> {
                           ],
                         )
                       ),
-                      icon: const Icon(Icons.delete_outline_outlined)
+                      icon: Icon(PlatformIcons(context).deleteOutline)
                   )
-                ].followedBy(LogType.values.map((lt) => _getFilterButton(lt))).toList()
+                ].followedBy(LogType.values.map((lt) => _getFilterButton(context, lt))).toList()
             ),
             Expanded(child: logs.isNotEmpty ? StickyGroupedListView(
               shrinkWrap: true,
@@ -113,7 +112,7 @@ class _LogScreenState extends State<LogScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                  leading: l.type.getIcon(),
+                  leading: l.type.getIcon(context),
                   title: ExpandableNotifier(
                       child: ScrollOnExpand(
                           child: ExpandablePanel(
