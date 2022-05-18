@@ -144,7 +144,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           tiles: [
             SettingsTile.navigation(
               title: Text(S.of(context).language),
-              value: _formattedLanguage(context, _language),
+              value: isCupertino(context) ? _formattedLanguage(context, _language) : null,
+              trailing: isMaterial(context) ? Row(children: [_formattedLanguage(context, _language), const Icon(Icons.chevron_right)]) : null,
               leading: const Icon(Icons.language),
               onPressed: (context) {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -162,7 +163,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   S.of(context).dateLocale,
                   S.of(context).dateFormatting
               ),
-              value: _formattedLanguage(context, _dateLocale),
+              value: isCupertino(context) ? _formattedLanguage(context, _dateLocale) : null,
+              trailing: isMaterial(context) ? Row(children: [_formattedLanguage(context, _dateLocale), const Icon(Icons.chevron_right)]) : null,
               leading: const Icon(Icons.language),
               onPressed: (context) {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -182,20 +184,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                 enabled: loggedIn,
                 title: Text(S.of(context).self),
-                value: loggedIn ? Text(_self, textAlign: TextAlign.right,) : const SizedBox(),
+                trailing: loggedIn ? Text(_self, textAlign: TextAlign.right,) : const SizedBox(),
                 leading: Icon(PlatformIcons(context).time),
               ),
               SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).knownIDs),
-                value: loggedIn ? Text(
+                trailing: loggedIn ? Text(
                     _knownIDs.toString(), textAlign: TextAlign.center) : const SizedBox(),
                 leading: Icon(_getFilterIcon(_knownIDs)),
               ),
               SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).lastUploaded),
-                value: loggedIn ? _lastServerUpdate.formattedDateTimeText() : const SizedBox(),
+                trailing: loggedIn ? _lastServerUpdate.formattedDateTimeText() : const SizedBox(),
                 leading: Icon(PlatformIcons(context).time),
                 onPressed: (_) async {
                   await Manager.singleton.getLastServerUpdate();
@@ -212,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     S.of(context).lastFetched,
                     loggedIn ? _refreshing ? S.of(context).refreshingSubstitutes : S.of(context).clickToRefresh : null
                 ),
-                value: loggedIn ? _lastClientUpdate.formattedDateTimeText() : const SizedBox(),
+                trailing: loggedIn ? _lastClientUpdate.formattedDateTimeText() : const SizedBox(),
                 leading: _refreshing ? LayoutBuilder(
                     builder: (context, constraints) =>
                         SizedBox.fromSize(

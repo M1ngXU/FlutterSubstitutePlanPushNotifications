@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:substitute_plan_push_notifications/cache/logger.dart';
 import 'package:substitute_plan_push_notifications/ui/log.dart';
 import 'package:substitute_plan_push_notifications/ui/settings.dart';
 import 'package:substitute_plan_push_notifications/ui/substitutes.dart';
@@ -33,7 +34,7 @@ class SubNavigation {
 class NavigatorScaffold extends State<NavigatorScaffoldState> {
   final List<SubNavigation?> _widgets = [
     null,
-    SubNavigation((s) => s.logs, (p) => p.info, const LogScreen()),
+    SubNavigation((s) => s.logs, (p) => LogType.info.getIconData(p.context), const LogScreen()),
     SubNavigation((s) => s.settings, (p) => p.settings, const SettingsScreen()),
   ];
   final _substituteScreen = SubNavigation((s) => s.substitutes, (p) => p.time, const SubstituteScreen());
