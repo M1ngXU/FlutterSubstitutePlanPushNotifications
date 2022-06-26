@@ -100,14 +100,16 @@ class _SubstituteScreenState extends State<SubstituteScreen> {
                 elevation: 8.0,
                 margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                 child: ListTile(
-                  contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                   leading: Icon(e.icon(context)),
                   title: Text(e.toReadableString()),
                   trailing: Text(e.getTimeRangeString(context, _timeFormatter),
                     style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()]),
                     textAlign: TextAlign.right,
                   ),
+                  textColor: MediaQuery.of(context).platformBrightness == Brightness.dark ? Colors.white : null,
+                  tileColor: MediaQuery.of(context).platformBrightness == Brightness.dark ? Colors.black87 : null,
+                  iconColor: MediaQuery.of(context).platformBrightness == Brightness.dark ? Colors.white : null,
                 ),
               ),
               itemComparator: (Substitute e1, Substitute e2) => e1.subjectHourComparison(e2)

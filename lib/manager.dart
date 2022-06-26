@@ -16,7 +16,6 @@ class Manager {
   Agent? _agent;
 
   HashMap<int, Function()> onRefreshingChangedCallback = HashMap();
-  HashMap<int, Function()> onLoggedIn = HashMap();
   bool _refreshing = false;
   bool get refreshing => _refreshing;
   set refreshing(bool v) {
@@ -26,9 +25,7 @@ class Manager {
     }
   }
 
-  Manager._(this.cacheManager, this._agent) {
-    onLoggedIn.putIfAbsent(hashCode, () => cacheManager.invokeLoginDataUpdate);
-  }
+  Manager._(this.cacheManager, this._agent);
 
   static Manager get singleton => _singleton!;
 
@@ -82,9 +79,6 @@ class Manager {
       Uri uri = Uri.parse(url);
       Logger.vi(S.current.loggingIn);
       cacheManager.loginData = (_agent = await Agent.login(uri, username, password, school))!.loginData;
-      for (var f in onLoggedIn.values) {
-        f.call();
-      }
       Logger.vi(S.current.loggedIn);
       return true;
     } catch (e, s) {
@@ -118,13 +112,7 @@ class Manager {
     }
     if (!needsRefresh) return false;
     var updates = sortSubstitutes((await _refresh()).toList());
-    var content = updates.values.map((s) => '${s.first.formattedDate}: '
-        + (s.length == 1
-            ? s.first.toReadableString()
-            : s.map((e) => '${e.lessons.replaceFirstMapped(RegExp(r'^.*?(\d(\+\d)*)$'), (match) => match[1] ?? '')}:'
-            ' ${e.translatedKind}').join('; ')
-        )
-    ).join('\n');
+    var content = updates.values.map((s) => '${s.first.formattedDate}: ' + s.first.toReadableString() + (s.length > 1 ? ' [...]' : '')).join('\n');
     if (content.isNotEmpty) NotificationManager.sendNotification(S.current.substitutePlanUpdate, content);
     return updates.isNotEmpty;
   }

@@ -111,11 +111,16 @@ class Substitute {
     List<Substitute> s = [];
     String? kind = castOr(json['kind'], null);
     if (kind != null && [json, parent]
-        .map((g) => castToJsonArray(g?['grades'])
-          .map((g) => g['shortcut'])
-          .whereType<String>()
-        )
-        .any((g) => CacheManager.singleton.showHolidays ? g.contains(grade) : (g.length == 1 && g.first == grade))
+        .any((o) {
+          var g = castToJsonArray(o?['grades'])
+              .map((g) => g['shortcut'])
+              .whereType<String>();
+          if (CacheManager.singleton.showHolidays) {
+            return g.contains(grade);
+          } else {
+            return (g.length == 1 && g.first == grade) || (g.contains(grade) && o?['comment'].isNotEmpty == true);
+          }
+    })
     ) {
       s.addAll(
           castListOr<int>(json['dates'], [])
@@ -174,7 +179,8 @@ class Substitute {
   String get translatedKind => _translationByKind[kind]?.call() ?? S.current.unknownKind;
   String get formattedKind => _kindFormatter[kind]?.call(this) ?? '$kind ($subject: $_teachers|$_rooms)';
   /// tries to format the comment using different regexes
-  String get formattedComment => RegExp(r'Beschreibung:\s*.*?;' '\n' r'Stunde:\s*\d\/\d;').hasMatch(comment) ? S.current.exam : comment;
+  String get formattedComment => isExam ? S.current.exam : comment;
+  bool get isExam => RegExp(r'Beschreibung:\s*.*?;' '\n' r'Stunde:\s*\d\/\d;').hasMatch(comment);
 
   IconData icon(BuildContext ctx) => _iconByKind[kind]?.call(PlatformIcons(ctx)) ?? PlatformIcons(ctx).helpOutline;
 

@@ -37,14 +37,14 @@ extension ColorExtension on Color {
 extension DateTimeExtension on DateTime {
   DateTime stripSeconds() => add(Duration(seconds: -second, milliseconds: -millisecond, microseconds: -microsecond));
   DateTime stripHours() => DateTime(year, month, day);
-  Text formattedDateTimeText() => Text(
+  Text formattedDateTimeText({Color? color}) => Text(
       DateFormat
           .yMd(CacheManager.singleton.dateLocale)
           .addPattern('', '\n')
           .add_jms()
           .format(this),
       textAlign: TextAlign.right,
-      style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()])
+      style: TextStyle(fontFeatures: const [FontFeature.tabularFigures()], color: color),
   );
 }
 

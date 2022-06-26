@@ -122,6 +122,9 @@ class _LogScreenState extends State<LogScreen> {
                       )
                   ),
                   trailing: l.time.formattedDateTimeText(),
+                  textColor: MediaQuery.of(context).platformBrightness == Brightness.dark ? Colors.white : null,
+                  tileColor: MediaQuery.of(context).platformBrightness == Brightness.dark ? Colors.black87 : null,
+                  iconColor: MediaQuery.of(context).platformBrightness == Brightness.dark ? Colors.white : null,
                 ),
               ),
             ) : Center(child: Text(S.of(context).noLogs, style: Theme.of(context).textTheme.titleLarge,)))

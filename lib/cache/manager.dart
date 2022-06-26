@@ -160,7 +160,7 @@ class CacheManager {
   clearCacheExceptLoginData() {
     _cache = Cache.fromJson(_cache.toJson()..removeWhere((key, _) => key != 'loginData'));
     saveCache();
-    for (var m in _callbacks.values) {
+    for (var m in _callbacks.keys.where((k) => k != 'login data').map((k) => _callbacks[k]!)) {
       for (var f in m.values) {
         f.call();
       }

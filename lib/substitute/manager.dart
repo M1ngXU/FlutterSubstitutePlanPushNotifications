@@ -30,6 +30,10 @@ SortedSubstitutes sortSubstitutes(List<Substitute> substitutes) {
   SortedSubstitutes s = SortedSubstitutes();
   for (var substitute in substitutes) {
     var date = s.putIfAbsent(substitute.date, () => TreeSet<Substitute>(comparator: (a, b) => a.subjectHourComparison(b)));
+    // whole day like mdl abitur?
+    if (substitute.hours.first.order == -1 && !substitute.isExam) {
+      date.clear();
+    }
     try {
       var d = date.firstWhere((sub) => sub.subjectHourEquality(substitute));
       if (substitute.kind == event) {
@@ -38,7 +42,7 @@ SortedSubstitutes sortSubstitutes(List<Substitute> substitutes) {
       }
       d.hours.addAll(substitute.hours);
     } catch(_) {
-      date.add(substitute);
+      if (date.isEmpty || date.first.hours.first.order != -1 || substitute.isExam) date.add(substitute);
     }
   }
   return s;

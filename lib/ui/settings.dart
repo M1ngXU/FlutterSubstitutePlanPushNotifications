@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:substitute_plan_push_notifications/cache/manager.dart';
 import 'package:substitute_plan_push_notifications/main.dart';
@@ -28,13 +29,6 @@ const List<IconData> _filter = [
   Icons.filter_9_plus_rounded,
 ];
 IconData _getFilterIcon(int i) => _filter[min(max(i, 0), _filter.length - 1)];
-Widget _getTitle(BuildContext ctx, String title, String? description) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(title),
-      if (description != null) Text(description, style: Theme.of(ctx).textTheme.bodySmall)
-    ]
-);
 Widget _formattedLanguage(BuildContext ctx, String? nullableLocale) => Text(
   LocaleNames.of(ctx)?.nameOf(nullableLocale ?? S.of(ctx).invalidLocale)
       ?? S.of(ctx).systemLanguage.replaceAll(' ', '\n'),
@@ -131,11 +125,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
               initialValue: _showHolidays,
               leading: const Icon(Icons.announcement_outlined),
-              title: _getTitle(
-                  context,
-                  S.of(context).holidays,
-                  S.of(context).showSubstitutesForHolidays
-              ),
+              title: Text(S.of(context).holidays),
+              description: Text(S.of(context).showSubstitutesForHolidays),
             ),
           ],
         ),
@@ -158,11 +149,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             SettingsTile.navigation(
-              title: _getTitle(
-                  context,
-                  S.of(context).dateLocale,
-                  S.of(context).dateFormatting
-              ),
+              title: Text(S.of(context).dateLocale),
+              description: Text(S.of(context).dateFormatting),
               value: isCupertino(context) ? _formattedLanguage(context, _dateLocale) : null,
               trailing: isMaterial(context) ? Row(children: [_formattedLanguage(context, _dateLocale), const Icon(Icons.chevron_right)]) : null,
               leading: const Icon(Icons.language),
@@ -184,20 +172,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                 enabled: loggedIn,
                 title: Text(S.of(context).self),
-                trailing: loggedIn ? Text(_self, textAlign: TextAlign.right,) : const SizedBox(),
+                trailing: loggedIn ? Text(_self, textAlign: TextAlign.right, style: TextStyle(color: getSettingsTheme(context).trailingTextColor)) : const SizedBox(),
                 leading: Icon(PlatformIcons(context).time),
               ),
               SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).knownIDs),
-                trailing: loggedIn ? Text(
-                    _knownIDs.toString(), textAlign: TextAlign.center) : const SizedBox(),
+                trailing: loggedIn ? Text(_knownIDs.toString(), textAlign: TextAlign.center, style: TextStyle(color: getSettingsTheme(context).trailingTextColor),) : const SizedBox(),
                 leading: Icon(_getFilterIcon(_knownIDs)),
               ),
               SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
                 title: Text(S.of(context).lastUploaded),
-                trailing: loggedIn ? _lastServerUpdate.formattedDateTimeText() : const SizedBox(),
+                trailing: loggedIn ? _lastServerUpdate.formattedDateTimeText(color: getSettingsTheme(context).trailingTextColor) : const SizedBox(),
                 leading: Icon(PlatformIcons(context).time),
                 onPressed: (_) async {
                   await Manager.singleton.getLastServerUpdate();
@@ -209,12 +196,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: Text(S.of(context).actions),
           tiles: [
             SettingsTile(
-                title: _getTitle(
-                    context,
-                    S.of(context).lastFetched,
-                    loggedIn ? _refreshing ? S.of(context).refreshingSubstitutes : S.of(context).clickToRefresh : null
-                ),
-                trailing: loggedIn ? _lastClientUpdate.formattedDateTimeText() : const SizedBox(),
+                title: Text(S.of(context).lastFetched),
+                description: loggedIn ? Text(_refreshing ? S.of(context).refreshingSubstitutes : S.of(context).clickToRefresh) : null,
+                trailing: loggedIn ? _lastClientUpdate.formattedDateTimeText(color: getSettingsTheme(context).trailingTextColor) : const SizedBox(),
                 leading: _refreshing ? LayoutBuilder(
                     builder: (context, constraints) =>
                         SizedBox.fromSize(
@@ -243,11 +227,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             SettingsTile(
                 enabled: CacheManager.singleton.loggedIn,
-                title: _getTitle(
-                    context,
-                    S.of(context).clearCache,
-                    S.of(context).exceptLoginData
-                ),
+                title: Text(S.of(context).clearCache),
+                description: Text(S.of(context).exceptLoginData),
                 leading: Icon(PlatformIcons(context).clear),
                 onPressed: (_) {
                   CacheManager.singleton.clearCacheExceptLoginData();
@@ -263,8 +244,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
-          tiles: [SettingsTile(title: Text.rich(
-              const TextSpan(
+          tiles: [SettingsTile(title: const Text.rich(
+              TextSpan(
                 children: [
                   TextSpan(
                     text: 'Programmed by ',
@@ -276,11 +257,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
-              style: Theme.of(context).textTheme.subtitle1,
+              //style: Theme.of(context).textTheme.subtitle1,
             textAlign: TextAlign.right,
           ),)],
         )
       ],
+      lightTheme: getSettingsTheme(context),
     );
+  }
+
+  var lightTheme = const SettingsThemeData();
+
+  var darkTheme = const SettingsThemeData(
+    settingsListBackground: Colors.black,
+    dividerColor: Colors.grey,
+    inactiveTitleColor: Colors.grey,
+    inactiveSubtitleColor: Colors.grey,
+    settingsTileTextColor: Colors.white,
+    titleTextColor: Colors.white60,
+    settingsSectionBackground: Colors.white12,
+    tileDescriptionTextColor: Colors.white,
+    tileHighlightColor: Colors.white10,
+    trailingTextColor: Colors.white,
+    leadingIconsColor: Colors.white
+  );
+
+  SettingsThemeData getSettingsTheme(BuildContext context) {
+    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
+      return darkTheme;
+    } else {
+        return lightTheme;
+    }
   }
 }
